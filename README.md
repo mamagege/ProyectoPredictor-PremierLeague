@@ -1,9 +1,8 @@
 # HITO 2: PREDICCIÓN DE RESULTADOS DE FÚTBOL MEDIANTE REDES NEURONALES PROFUNDAS (DEEP MLP)
 
 **Institución:** Escuela Colombiana de Ingeniería Julio Garavito  
-**Departamento:** Departamento de Ingeniería de Sistemas  
-**Curso:** Principiosy Tecnologías de Inteligencia Artificial (PTIA)  
-**Grupo:** Grupo 04  
+**Curso:** Principios y Tecnologías de Inteligencia Artificial (PTIA)  
+
 **Integrantes:**
 - Juan Diego Gaitán
 - José Alejandro Martínez
@@ -18,7 +17,7 @@
 Esta carpeta contiene los entregables oficiales del Hito 2:
 
 1. **`Proyecto3_Red_Neuronal_Profunda_EPL.ipynb`**  
-   Notebook principal interactivo estructurado en 20 secciones pedagógicas: lectura de datos, preprocesamiento sin fuga temporal (*zero data leakage*), arquitectura de red neuronal profunda con regularización (Dropout, BatchNorm, L2), curvas de aprendizaje, matrices de confusión, comparación con modelos de referencia (*baselines*), análisis de calibración y pruebas de predicción.
+   Notebook principal interactivo
 
 
 
