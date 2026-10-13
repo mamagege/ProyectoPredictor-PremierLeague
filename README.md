@@ -12,6 +12,10 @@
 
 ---
 
+## LINK VIDEO EXPLICACIÓN:
+
+https://youtu.be/vJ2x2CfAMa4
+
 ## Contenido de la Carpeta `hito2`
 
 Esta carpeta contiene los entregables oficiales del Hito 2:
