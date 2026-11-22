@@ -44,6 +44,22 @@ export interface TeamsResponse {
   all: string[]
 }
 
+export interface ModelResult {
+  model: string
+  accuracy: number
+  log_loss: number
+  brier_score: number
+  f1_D: number
+}
+
+export interface MetricsResponse {
+  selected_architecture: string
+  epochs_trained: number
+  test_results: ModelResult[]
+  confusion_matrix: number[][]
+  confusion_matrix_norm: number[][]
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     headers: { 'Content-Type': 'application/json' },
@@ -61,5 +77,5 @@ export const api = {
   teams: () => request<TeamsResponse>('/api/teams'),
   predict: (body: PredictRequest) =>
     request<PredictResponse>('/api/predict', { method: 'POST', body: JSON.stringify(body) }),
-  metrics: () => request<Record<string, unknown>>('/api/metrics'),
+  metrics: () => request<MetricsResponse>('/api/metrics'),
 }
