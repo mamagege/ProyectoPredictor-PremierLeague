@@ -26,9 +26,14 @@ const TONE: Record<Outcome, string> = {
   draw: 'var(--color-draw)',
   away: 'var(--color-away)',
 }
+const CODE: Record<Outcome, string> = {
+  home: '1',
+  draw: 'X',
+  away: '2',
+}
 const ORDER: Outcome[] = ['home', 'draw', 'away']
 
-function Row({
+function OutcomeCard({
   outcome,
   label,
   value,
@@ -50,58 +55,85 @@ function Row({
   const vsNormal = value !== null && base !== null ? value - base : null
   const vsPrev = value !== null && prev !== null ? value - prev : null
   const whole = value === null ? '–' : num1(value)
+  const oddImplied = value && value > 0 ? (100 / value).toFixed(2) : null
+
   return (
-    <li className="py-5 first:pt-0 last:pb-0">
-      <div className="flex items-baseline justify-between gap-4">
-        <h3 className={`min-w-0 break-words text-base sm:text-lg ${winner ? 'font-bold' : 'text-ink-muted font-bold'}`}>
-          <span aria-hidden className="mr-2 inline-block size-2.5 rounded-full align-middle" style={{ background: TONE[outcome] }} />
+    <li
+      className={`flex flex-col justify-between rounded-md border p-3.5 transition-colors ${
+        winner ? 'border-accent bg-raised/90' : 'border-line bg-canvas/60'
+      }`}
+    >
+      <div>
+        <div className="flex items-center justify-between gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded bg-surface px-2 py-0.5 font-display text-xs font-bold uppercase tracking-wider text-ink-muted">
+            <span aria-hidden className="size-2 rounded-full" style={{ background: TONE[outcome] }} />
+            {CODE[outcome]}
+          </span>
+          {winner ? (
+            <span className="rounded bg-accent/20 px-2 py-0.5 text-[11px] font-bold text-accent">Más probable</span>
+          ) : (
+            oddImplied && <span className="text-xs text-ink-muted">~{oddImplied}</span>
+          )}
+        </div>
+
+        <h3 className="mt-2 truncate text-sm font-bold text-ink" title={label}>
           {label}
-          {winner && <span className="ml-2 text-sm font-normal text-ink-muted">más probable</span>}
         </h3>
+
         <p
-          className={`shrink-0 font-display text-5xl font-bold leading-none sm:text-6xl ${loading ? 'animate-pulse motion-reduce:animate-none' : ''}`} style={{ color: value === null ? 'var(--color-line)' : TONE[outcome] }}>
+          className={`mt-1 font-display text-4xl font-bold leading-none sm:text-5xl ${
+            loading ? 'animate-pulse motion-reduce:animate-none' : ''
+          }`}
+          style={{ color: value === null ? 'var(--color-line)' : TONE[outcome] }}
+        >
           {whole}
-          <span className="ml-1 text-2xl text-ink-muted sm:text-3xl">%</span>
+          <span className="ml-0.5 text-xl text-ink-muted">%</span>
         </p>
       </div>
 
-      {/* Escala 0–100 con la marca de la "normal" histórica */}
-      <div
-        role="img"
-        aria-label={
-          value === null
-            ? `${label}: sin calcular`
-            : `${label}: ${pct1(value)}${base !== null ? `, en los partidos de 2021 a 2025 ocurrió el ${pct1(base)} de las veces` : ''}`
-        }
-        className="relative mt-3 h-3 rounded-sm bg-raised"
-      >
-        {value !== null && (
-          <div
-            className="bar-fill absolute inset-y-0 left-0 rounded-sm"
-            style={{ width: `${value}%`, background: TONE[outcome], ['--i' as string]: index }}
-          />
-        )}
-        {base !== null && (
-          <span
-            aria-hidden
-            className="absolute -top-1.5 h-6 w-0.5 rounded-full bg-ink"
-            style={{ left: `calc(${base}% - 1px)` }}
-          />
-        )}
-      </div>
+      <div>
+        {/* Escala 0–100 con la marca de la "normal" histórica */}
+        <div
+          role="img"
+          aria-label={
+            value === null
+              ? `${label}: sin calcular`
+              : `${label}: ${pct1(value)}${
+                  base !== null ? `, en los partidos de 2021 a 2025 ocurrió el ${pct1(base)} de las veces` : ''
+                }`
+          }
+          className="relative mt-3 h-2.5 rounded-sm bg-raised"
+        >
+          {value !== null && (
+            <div
+              className="bar-fill absolute inset-y-0 left-0 rounded-sm"
+              style={{ width: `${value}%`, background: TONE[outcome], ['--i' as string]: index }}
+            />
+          )}
+          {base !== null && (
+            <span
+              aria-hidden
+              className="absolute -top-1 h-4 w-0.5 rounded-full bg-ink"
+              style={{ left: `calc(${base}% - 1px)` }}
+            />
+          )}
+        </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink-muted">
-        <span>{base !== null ? `Frecuencia 2021–25: ${pct1(base)}` : 'Frecuencia 2021–25: …'}</span>
-        {vsNormal !== null && (
-          <span className="inline-flex items-center gap-1 text-ink">
-            {vsNormal >= 0 ? <ArrowUp aria-hidden className="size-3.5" /> : <ArrowDown aria-hidden className="size-3.5" />}
-            {signed1(vsNormal)} pts
-          </span>
-        )}
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-1 text-xs text-ink-muted">
+          <span>{base !== null ? `Liga 21–25: ${pct1(base)}` : 'Liga 21–25: …'}</span>
+          {vsNormal !== null && (
+            <span className="inline-flex items-center gap-0.5 font-bold text-ink">
+              {vsNormal >= 0 ? <ArrowUp aria-hidden className="size-3" /> : <ArrowDown aria-hidden className="size-3" />}
+              {signed1(vsNormal)} pts
+            </span>
+          )}
+        </div>
         {vsPrev !== null && Math.abs(vsPrev) >= 0.05 && (
-          <span className="delta-chip inline-flex items-center rounded px-1.5 py-0.5 text-ink">
-            {signed1(vsPrev)} pts vs. cálculo anterior
-          </span>
+          <div className="mt-1">
+            <span className="delta-chip inline-flex items-center rounded px-1.5 py-0.5 text-[11px] text-ink">
+              {signed1(vsPrev)} pts vs. anterior
+            </span>
+          </div>
         )}
       </div>
     </li>
@@ -135,29 +167,38 @@ export default function Forecast({
     <section
       aria-labelledby="forecast-title"
       aria-busy={busy}
-      className={`rounded-lg border border-line bg-surface p-5 transition-opacity sm:p-6 ${busy ? 'opacity-60' : ''}`}
+      className={`rounded-lg border border-line bg-surface p-4 transition-opacity sm:p-5 ${busy ? 'opacity-60' : ''}`}
     >
       {result && !busy && (
         <p role="status" aria-live="polite" className="sr-only">
-          {`Pronóstico ${result.home_team} contra ${result.away_team}: victoria de ${result.home_team} ${pct1(result.probabilities.home)}, empate ${pct1(result.probabilities.draw)}, victoria de ${result.away_team} ${pct1(result.probabilities.away)}.`}
+          {`Pronóstico ${result.home_team} contra ${result.away_team}: victoria de ${result.home_team} ${pct1(
+            result.probabilities.home,
+          )}, empate ${pct1(result.probabilities.draw)}, victoria de ${result.away_team} ${pct1(
+            result.probabilities.away,
+          )}.`}
         </p>
       )}
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 id="forecast-title" className="text-balance font-display text-2xl font-bold leading-tight">
-          {result ? `${result.home_team} – ${result.away_team}` : 'Pronóstico del partido'}
-        </h2>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-3">
+        <div>
+          <span className="text-[11px] font-bold uppercase tracking-wider text-accent">Resultado del Partido · 1X2</span>
+          <h2 id="forecast-title" className="text-balance font-display text-2xl font-bold leading-tight">
+            {result ? `${result.home_team} vs. ${result.away_team}` : 'Pronóstico del partido'}
+          </h2>
+        </div>
         {result && (
-          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-muted">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-ink-muted">
             {result.mock && (
               <span className="rounded border border-ink-muted px-1.5 py-0.5 font-bold">Datos de ejemplo</span>
             )}
-            {result.match_date ? formatDate(result.match_date) : 'Datos más recientes disponibles'}
-          </p>
+            <span className="rounded bg-raised px-2.5 py-1 font-bold text-ink">
+              {result.match_date ? formatDate(result.match_date) : 'Datos más recientes disponibles'}
+            </span>
+          </div>
         )}
       </div>
 
       {error ? (
-        <div className="mt-5">
+        <div className="mt-4">
           <ErrorNotice title="No se pudo calcular el pronóstico" message={error} onRetry={onRetry}>
             {error.startsWith('Historial insuficiente') &&
               'Prueba con una fecha posterior (los datos empiezan en agosto de 2000) o deja la fecha vacía.'}
@@ -165,47 +206,46 @@ export default function Forecast({
         </div>
       ) : (
         <>
-          {!result && (
-            <p className="mt-1 text-ink-muted">
-              Elige dos equipos y calcula. La marca blanca de cada barra indica con qué frecuencia ocurrió ese resultado en
-              los partidos de 2021 a 2025.
-            </p>
-          )}
-          {result && (
-            <p className="mt-1 text-ink-muted">
-              {result.odds_used
-                ? 'Calculado con las cuotas que ingresaste.'
-                : 'Sin cuotas: el mercado se estimó a partir del Elo.'}{' '}
-              La marca blanca indica con qué frecuencia ocurrió ese resultado en los partidos de 2021 a 2025.
-            </p>
-          )}
+          <p className="mt-2.5 text-xs text-ink-muted">
+            {!result
+              ? 'Elige un partido de la lista inferior o configura cualquier cruce a la izquierda. La marca blanca en cada barra es la media histórica (2021–25).'
+              : result.odds_used
+                ? 'Calculado con las cuotas ingresadas. La marca blanca indica la frecuencia histórica (2021–25).'
+                : 'Sin cuotas: el mercado se estimó a partir del Elo. La marca blanca indica la frecuencia histórica (2021–25).'}
+          </p>
 
           {result && actual && (
-            <p className="mt-4 flex gap-2 text-base">
+            <div
+              className={`mt-3 flex items-start gap-2.5 rounded-md border px-3 py-2 text-sm ${
+                predictedRight(result.predicted, actual)
+                  ? 'border-local/50 bg-local/10 text-ink'
+                  : 'border-away/50 bg-away/10 text-ink'
+              }`}
+            >
               {predictedRight(result.predicted, actual) ? (
-                <Check aria-hidden className="mt-1 size-4 shrink-0" />
+                <Check aria-hidden className="mt-0.5 size-4 shrink-0 text-local" />
               ) : (
-                <X aria-hidden className="mt-1 size-4 shrink-0" />
+                <X aria-hidden className="mt-0.5 size-4 shrink-0 text-away" />
               )}
               <span>
                 <span className="font-bold">
-                  Resultado real: {actual.home_team} {score(actual)} {actual.away_team}.
+                  Marcador real: {actual.home_team} {score(actual)} {actual.away_team}.
                 </span>{' '}
-                El modelo veía como más probable «{labels[result.predicted]}» y{' '}
-                {predictedRight(result.predicted, actual) ? 'coincidió' : 'no coincidió'} con lo que pasó; a lo que ocurrió
-                le daba un {pct1(result.probabilities[outcomeOf(actual)])}.
+                El modelo daba como más probable «{labels[result.predicted]}» y{' '}
+                {predictedRight(result.predicted, actual) ? 'acertó' : 'no coincidió'} (asignó{' '}
+                {pct1(result.probabilities[outcomeOf(actual)])} al resultado que ocurrió).
               </span>
-            </p>
+            </div>
           )}
 
           {warnings.length > 0 && (
-            <div role="status" className="mt-4 flex gap-3 rounded-md border border-draw/50 bg-draw/10 p-3 text-sm text-draw">
+            <div role="status" className="mt-3 flex gap-2.5 rounded-md border border-draw/50 bg-draw/10 p-2.5 text-xs text-draw">
               <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
               <div>
                 {warnings.map((w) => (
                   <p key={w}>{w}</p>
                 ))}
-                <p className="mt-1 text-ink">Tómalo como una estimación poco fiable.</p>
+                <p className="mt-0.5 text-ink">Tómalo como una estimación con menor respaldo histórico.</p>
               </div>
             </div>
           )}
@@ -214,7 +254,7 @@ export default function Forecast({
             <div
               aria-hidden
               key={`stack-${result.home_team}-${result.away_team}-${result.probabilities.home}`}
-              className="mt-6 flex h-4 gap-0.5 overflow-hidden rounded-sm"
+              className="mt-3.5 flex h-2.5 gap-0.5 overflow-hidden rounded-sm"
             >
               {ORDER.map((o, i) => (
                 <div
@@ -226,9 +266,13 @@ export default function Forecast({
             </div>
           )}
 
-          <ul key={result ? `${result.home_team}-${result.away_team}-${result.probabilities.home}` : 'empty'} className="mt-6 divide-y divide-line">
+          {/* Tarjetas 1 · X · 2 en 3 columnas horizontales como cuotas de apuestas */}
+          <ul
+            key={result ? `${result.home_team}-${result.away_team}-${result.probabilities.home}` : 'empty'}
+            className="mt-3.5 grid grid-cols-1 gap-2.5 sm:grid-cols-3"
+          >
             {ORDER.map((o, i) => (
-              <Row
+              <OutcomeCard
                 key={o}
                 outcome={o}
                 label={labels[o]}
@@ -243,28 +287,27 @@ export default function Forecast({
           </ul>
 
           {result?.predicted_bayesian && result.predicted_bayesian !== result.predicted && (
-            <p className="mt-5 flex gap-2 text-base">
-              <Scale aria-hidden className="mt-1 size-4 shrink-0 text-ink-muted" />
+            <div className="mt-3.5 flex items-start gap-2 rounded-md border border-draw/40 bg-draw/10 px-3 py-2 text-xs text-ink">
+              <Scale aria-hidden className="mt-0.5 size-4 shrink-0 text-draw" />
               <span>
-                Con los umbrales bayesianos del modelo, pensados para detectar más empates, el pronóstico sería{' '}
-                <span className="font-bold">«{labels[result.predicted_bayesian]}»</span>, aunque «{labels[result.predicted]}»
-                sigue siendo el resultado con mayor probabilidad.
+                Con los <strong>umbrales bayesianos</strong> del modelo (ajustados para detectar más empates), el
+                pronóstico discreto sería <span className="font-bold text-draw">«{labels[result.predicted_bayesian]}»</span>,
+                aunque «{labels[result.predicted]}» tiene la probabilidad bruta más alta.
               </span>
-            </p>
+            </div>
           )}
 
-          <div className="mt-6 flex gap-3 border-t border-line pt-4 text-base text-ink-muted">
-            <Info aria-hidden className="mt-0.5 size-4 shrink-0" />
+          <div className="mt-3.5 flex items-center gap-2 border-t border-line/70 pt-2.5 text-xs text-ink-muted">
+            <Info aria-hidden className="size-3.5 shrink-0" />
             <p>
-              Son tres probabilidades que suman 100 %, no un veredicto.
+              Tres probabilidades que suman 100 %.
               {accuracy !== null && (
                 <>
                   {' '}
-                  En {testMatches !== null ? num0(testMatches) : 'los'} partidos nunca vistos el modelo acertó el{' '}
-                  {pct1(accuracy * 100)}, y casi nunca marca el empate
-                  como lo más probable.{' '}
+                  Exactitud en {testMatches !== null ? num0(testMatches) : 'los'} partidos de prueba:{' '}
+                  <strong className="text-ink">{pct1(accuracy * 100)}</strong>.{' '}
                   <button type="button" onClick={onOpenModel} className="font-bold text-accent underline hover:brightness-125">
-                    Ver cómo se evaluó
+                    Ver evaluación del modelo
                   </button>
                 </>
               )}

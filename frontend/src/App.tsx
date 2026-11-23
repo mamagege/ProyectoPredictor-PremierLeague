@@ -107,12 +107,17 @@ export default function App() {
     <div className="min-h-dvh">
       <Intro />
       <header className="border-b border-line bg-surface">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-          <a href="#predictor" onClick={(e) => { e.preventDefault(); go('predictor') }} className="flex items-center gap-2.5 py-3">
-            <Mark />
-            <span className="font-display text-2xl font-bold leading-none">Predictor EPL</span>
-          </a>
-          <nav aria-label="Principal" className="flex items-center gap-5">
+        <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-6">
+          <div className="flex items-center gap-3 py-2.5">
+            <a href="#predictor" onClick={(e) => { e.preventDefault(); go('predictor') }} className="flex items-center gap-2.5">
+              <Mark />
+              <span className="font-display text-2xl font-bold leading-none">Predictor EPL</span>
+            </a>
+            <span className="hidden rounded bg-raised px-2 py-0.5 font-display text-xs font-bold uppercase tracking-wider text-accent sm:inline-block">
+              Premier League · 1X2
+            </span>
+          </div>
+          <nav aria-label="Principal" className="flex items-center gap-2">
             {navItem('predictor', 'Predictor')}
             {navItem('modelo', 'Modelo')}
           </nav>
@@ -122,7 +127,7 @@ export default function App() {
       <p role="status" className="sr-only">
         {navigated ? `Pantalla ${LABELS[tab]}` : ''}
       </p>
-      <main ref={mainRef} className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <main ref={mainRef} className="mx-auto max-w-[1600px] px-3 py-4 sm:px-5 sm:py-5">
         {tab === 'predictor' ? (
           <PredictorView
             teams={teams}
@@ -139,22 +144,24 @@ export default function App() {
         )}
       </main>
 
-      <footer className="mx-auto max-w-6xl px-4 pb-8 text-sm text-ink-muted sm:px-6">
-        <p>
-          Proyecto PTIA · Escuela Colombiana de Ingeniería Julio Garavito · Grupo 04. Probabilidades estadísticas para
-          entender el juego; no son una recomendación de apuesta.
-        </p>
-        <a
-          href="#privacidad"
-          aria-current={tab === 'privacidad' ? 'page' : undefined}
-          onClick={(e) => {
-            e.preventDefault()
-            go('privacidad')
-          }}
-          className="mt-2 inline-flex min-h-11 items-center font-bold text-accent underline"
-        >
-          Privacidad
-        </a>
+      <footer className="mx-auto max-w-[1600px] border-t border-line/60 px-4 py-4 text-xs text-ink-muted sm:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p>
+            Proyecto PTIA · Escuela Colombiana de Ingeniería Julio Garavito · Grupo 04. Probabilidades estadísticas para
+            entender el juego; no son una recomendación de apuesta.
+          </p>
+          <a
+            href="#privacidad"
+            aria-current={tab === 'privacidad' ? 'page' : undefined}
+            onClick={(e) => {
+              e.preventDefault()
+              go('privacidad')
+            }}
+            className="inline-flex items-center font-bold text-accent underline"
+          >
+            Privacidad
+          </a>
+        </div>
       </footer>
     </div>
   )

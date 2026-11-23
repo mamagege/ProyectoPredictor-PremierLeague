@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Activity, ShieldAlert } from 'lucide-react'
 import {
   api,
   ApiRequestError,
@@ -28,7 +29,7 @@ interface Props {
 }
 
 export default function PredictorView({ teams, dates, teamsError, metrics, onOpenModel, onRetryTeams }: Props) {
-  const [fields, setFields] = useState<MatchFields>({ home: 'Arsenal', away: 'Chelsea', date: '' })
+  const [fields, setFields] = useState<MatchFields>({ home: 'Arsenal', away: 'Man City', date: '' })
   const [actual, setActual] = useState<PlayedMatch | null>(null)
   const [result, setResult] = useState<PredictResponse | null>(null)
   const [previous, setPrevious] = useState<PredictResponse | null>(null)
@@ -38,15 +39,7 @@ export default function PredictorView({ teams, dates, teamsError, metrics, onOpe
   const lastRequest = useRef<PredictRequest | null>(null)
   const lastPlayed = useRef<PlayedMatch | null>(null)
   const resultRef = useRef<HTMLDivElement>(null)
-
-  // En pantallas de una columna el resultado queda debajo del formulario: se desplaza hasta él.
-  useEffect(() => {
-    if (!result) return
-    const stacked = window.matchMedia('(max-width: 1023px)').matches
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    // Una columna: el resultado queda bajo el formulario. Dos columnas: solo si quedó fuera de la vista.
-    resultRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: stacked ? 'start' : 'nearest' })
-  }, [result])
+  const autoLoaded = useRef(false)
 
   async function submit(req: PredictRequest, played: PlayedMatch | null = null) {
     lastRequest.current = req
@@ -66,6 +59,15 @@ export default function PredictorView({ teams, dates, teamsError, metrics, onOpe
     }
   }
 
+  // Calcula un partido inicial al cargar para que las 3 columnas aprovechen todo el espacio desde el inicio.
+  useEffect(() => {
+    if (teams && !autoLoaded.current) {
+      autoLoaded.current = true
+      submit({ home_team: fields.home, away_team: fields.away })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teams])
+
   // Al tocar un partido: se cargan sus datos en el formulario y se calcula de inmediato.
   function pick(m: PickedMatch) {
     setFields({ home: m.home, away: m.away, date: m.date })
@@ -77,11 +79,13 @@ export default function PredictorView({ teams, dates, teamsError, metrics, onOpe
   const testMatches = metrics ? testSize(metrics) : null
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
+    <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[310px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)_390px]">
       <h1 tabIndex={-1} className="sr-only focus:outline-none">
         Predictor de partidos
       </h1>
-      <div>
+
+      {/* Columna izquierda: Configuración de partido y accesos rápidos */}
+      <div className="grid gap-3">
         <MatchForm
           {...fields}
           dates={dates}
@@ -92,15 +96,48 @@ export default function PredictorView({ teams, dates, teamsError, metrics, onOpe
           onSubmit={(req) => submit(req)}
         />
         {teamsError && (
-          <div className="mt-4">
-            <ErrorNotice message={teamsError} onRetry={onRetryTeams}>
-              Si la API no está iniciada, arráncala desde la raíz del repositorio con{' '}
-              <code className="font-bold">uvicorn api.main:app --port 8000</code>.
-            </ErrorNotice>
-          </div>
+          <ErrorNotice message={teamsError} onRetry={onRetryTeams}>
+            Si la API no está iniciada, arráncala desde la raíz del repositorio con{' '}
+            <code className="font-bold">uvicorn api.main:app --port 8000</code>.
+          </ErrorNotice>
         )}
+
+        {/* Atajos rápidos de partidos destacados para evaluar con un clic */}
+        <section className="rounded-lg border border-line bg-surface p-3.5">
+          <h2 className="flex items-center gap-1.5 font-display text-sm font-bold uppercase tracking-wider text-ink-muted">
+            <Activity aria-hidden className="size-3.5 text-accent" />
+            Cruces rápidos · Demo
+          </h2>
+          <div className="mt-2.5 grid gap-1.5 text-xs">
+            {[
+              { home: 'Arsenal', away: 'Man City', date: '', tag: 'Datos actuales · Bayes Empate' },
+              { home: 'Crystal Palace', away: 'Man City', date: '2026-08-28', tag: '28 ago 2026 · Real 1–4' },
+              { home: 'Liverpool', away: "Nott'm Forest", date: '2026-08-29', tag: '29 ago 2026 · Real 2–2' },
+              { home: 'Arsenal', away: 'Chelsea', date: '2024-04-23', tag: '23 abr 2024 · Caso Hito 3' },
+              { home: 'Liverpool', away: "Nott'm Forest", date: '2024-09-14', tag: '14 sep 2024 · Caso Hito 3' },
+            ].map((c) => (
+              <button
+                key={`${c.home}-${c.away}-${c.date}`}
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  setFields({ home: c.home, away: c.away, date: c.date })
+                  submit({ home_team: c.home, away_team: c.away, match_date: c.date || undefined })
+                }}
+                className="flex items-center justify-between rounded border border-line bg-raised/60 px-2.5 py-2 text-left hover:border-accent hover:bg-raised disabled:opacity-50"
+              >
+                <span className="font-bold text-ink">
+                  {c.home} vs. {c.away}
+                </span>
+                <span className="text-[11px] text-ink-muted">{c.tag}</span>
+              </button>
+            ))}
+          </div>
+        </section>
       </div>
-      <div ref={resultRef} className="grid scroll-mt-4 grid-cols-[minmax(0,1fr)] gap-5">
+
+      {/* Columna central: Pronóstico 1X2 arriba + Tablero de partidos tipo sportsbook abajo */}
+      <div ref={resultRef} className="grid min-w-0 gap-4">
         <Forecast
           result={result}
           previous={previous}
@@ -113,10 +150,28 @@ export default function PredictorView({ teams, dates, teamsError, metrics, onOpe
           onOpenModel={onOpenModel}
           onRetry={retriable ? () => lastRequest.current && submit(lastRequest.current, lastPlayed.current) : null}
         />
-        {result && !error && <Conditions result={result} />}
+        <MatchesPanel
+          date={fields.date}
+          disabled={busy}
+          activePair={result ? { home: result.home_team, away: result.away_team, date: result.match_date } : undefined}
+          onPick={pick}
+        />
       </div>
-      <div className="lg:col-span-2">
-        <MatchesPanel date={fields.date} disabled={busy} onPick={pick} />
+
+      {/* Columna derecha (Cupón / Ficha técnica pre-partido e Historial H2H) */}
+      <div className="lg:col-span-2 xl:col-span-1">
+        {result && !error ? (
+          <Conditions result={result} />
+        ) : (
+          <section className="rounded-lg border border-line bg-surface p-5 text-center text-sm text-ink-muted">
+            <ShieldAlert aria-hidden className="mx-auto size-8 text-ink-muted/60" />
+            <p className="mt-2 font-bold text-ink">Ficha técnica pre-partido</p>
+            <p className="mt-1">
+              Selecciona un evento en la tabla central o calcula un pronóstico para ver la comparativa de Elo, forma,
+              goles y el historial directo (H2H).
+            </p>
+          </section>
+        )}
       </div>
     </div>
   )
