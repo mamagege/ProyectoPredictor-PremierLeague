@@ -36,9 +36,12 @@ python -m uvicorn api.main:app --port 8000     # API que usa la interfaz (tarda 
 npm --prefix frontend run dev                   # Interfaz en http://localhost:5173
 ```
 
-La interfaz tiene dos pantallas:
-- **Predictor:** se eligen local, visitante, fecha (opcional) y cuotas (opcionales). Muestra las tres probabilidades frente a la frecuencia histórica de la liga, el estado de cada equipo antes del partido (Elo, forma, goles, descanso, temporada), el historial directo y los avisos del servicio (equipo debutante, fecha posterior a los datos).
+La interfaz tiene tres pantallas:
+- **Predictor:** se eligen local, visitante, fecha (opcional) y cuotas (opcionales). Muestra las tres probabilidades frente a la frecuencia real de cada resultado en los partidos de prueba (2021–25), el estado de cada equipo antes del partido (Elo, forma, goles, descanso, temporada), el historial directo y los avisos del servicio (equipo debutante, fecha posterior a los datos).
 - **Modelo:** comparación con los modelos de referencia, matriz de confusión y resumen de cómo se construyó y evaluó.
+- **Privacidad:** qué hace la aplicación con los datos que se escriben (no hay cuentas, cookies ni servicios de terceros).
+
+Si la API no responde, cada pantalla muestra el error con un botón para reintentar.
 
 Para diseñar la interfaz sin TensorFlow existe un modo simulado: `EPL_MOCK=1 python -m uvicorn api.main:app --port 8000`.
 
@@ -67,7 +70,8 @@ Para diseñar la interfaz sin TensorFlow existe un modo simulado: `EPL_MOCK=1 py
 │   └── Proyecto_Red_Neuronal_Profunda_EPL.ipynb   # Notebook del Hito 2 (modelo anterior)
 ├── docs/
 │   ├── Hito2Proyecto.pdf                          # Documento entregado en el Hito 2
-│   └── AUDITORIA_INDEPENDIENTE_BACKEND_HITO3.md   # Auditoría técnica del backend
+│   ├── AUDITORIA_INDEPENDIENTE_BACKEND_HITO3.md   # Auditoría técnica del backend
+│   └── adr/0001-frontend-y-api.md                 # Decisiones de arquitectura del frontend y la API
 ├── PRODUCT.md, DESIGN.md           # Contexto de producto y sistema de diseño de la interfaz
 ├── requirements.txt                # Dependencias del backend y la API
 └── requirements-notebook.txt       # Dependencias extra para los notebooks
@@ -115,7 +119,9 @@ La red mejora al modelo del Hito 2 y a HistGradientBoosting, pero queda 0,20 pun
 ## Otras tareas
 
 ```bash
-python -m unittest discover -s tests -v      # Pruebas (backend y las dos APIs)
+python -m unittest discover -s tests -v      # Pruebas del backend y de las dos APIs
+npm --prefix frontend test                    # Pruebas del frontend (Vitest)
+npm --prefix frontend run lint                # Linter del frontend
 python prediction_service.py                  # Casos de ejemplo por consola
 python -m src.train                           # Reentrenar y regenerar models/ (reemplaza el modelo desplegado)
 pip install -r requirements-notebook.txt      # Dependencias para abrir los notebooks (matplotlib, seaborn, JupyterLab)
