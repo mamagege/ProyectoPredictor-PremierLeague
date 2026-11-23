@@ -34,8 +34,9 @@ src/
 ├── components/
 │   ├── MatchForm.tsx      # Equipos, fecha y cuotas con validación
 │   ├── Forecast.tsx       # Las tres probabilidades frente a la frecuencia histórica
-│   └── Conditions.tsx     # Estado de cada equipo e historial directo
+│   ├── Conditions.tsx     # Estado de cada equipo e historial directo
+│   └── Intro.tsx          # Animación de entrada (solo en la primera visita)
 └── lib/format.ts          # Formato de números y fechas en español
 ```
 
-Las cifras del modelo (exactitud, partidos de prueba, variables, calibración) se leen de `/api/metrics`; no hay valores fijos en la interfaz.
+Las cifras del modelo (exactitud, partidos de prueba, variables, calibración) se leen de `/api/metrics` en lugar de estar escritas en el código.
