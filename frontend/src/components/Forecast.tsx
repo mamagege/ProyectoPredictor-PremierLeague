@@ -1,4 +1,5 @@
 import { ArrowDown, ArrowUp, Info, TriangleAlert } from 'lucide-react'
+import ErrorNotice from './ErrorNotice'
 import type { Outcome, PredictResponse } from '../api'
 import { formatDate, num1, pct1, signed1 } from '../lib/format'
 import type { BaseRates } from '../lib/rates'
@@ -12,6 +13,8 @@ interface Props {
   baseRates: BaseRates | null
   accuracy: number | null
   onOpenModel: () => void
+  /** Presente solo cuando el error se puede reintentar (sin conexión o fallo del servidor). */
+  onRetry?: (() => void) | null
 }
 
 const TONE: Record<Outcome, string> = {
@@ -29,6 +32,7 @@ function Row({
   prev,
   index,
   winner,
+  loading,
 }: {
   outcome: Outcome
   label: string
@@ -37,6 +41,7 @@ function Row({
   prev: number | null
   index: number
   winner: boolean
+  loading: boolean
 }) {
   const vsNormal = value !== null && base !== null ? value - base : null
   const vsPrev = value !== null && prev !== null ? value - prev : null
@@ -49,7 +54,8 @@ function Row({
           {label}
           {winner && <span className="ml-2 text-sm font-normal text-ink-muted">más probable</span>}
         </h3>
-        <p className="shrink-0 font-display text-5xl font-bold leading-none sm:text-6xl" style={{ color: value === null ? 'var(--color-line)' : TONE[outcome] }}>
+        <p
+          className={`shrink-0 font-display text-5xl font-bold leading-none sm:text-6xl ${loading ? 'animate-pulse motion-reduce:animate-none' : ''}`} style={{ color: value === null ? 'var(--color-line)' : TONE[outcome] }}>
           {whole}
           <span className="ml-1 text-2xl text-ink-muted sm:text-3xl">%</span>
         </p>
@@ -98,7 +104,7 @@ function Row({
   )
 }
 
-export default function Forecast({ result, previous, busy, error, baseRates, accuracy, onOpenModel }: Props) {
+export default function Forecast({ result, previous, busy, error, baseRates, accuracy, onOpenModel, onRetry }: Props) {
   const warnings = result ? staleWarnings(result) : []
   const samePair =
     result && previous && previous.home_team === result.home_team && previous.away_team === result.away_team
@@ -126,24 +132,21 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
           {result ? `${result.home_team} – ${result.away_team}` : 'Pronóstico del partido'}
         </h2>
         {result && (
-          <p className="text-sm text-ink-muted">
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-muted">
+            {result.mock && (
+              <span className="rounded border border-ink-muted px-1.5 py-0.5 font-bold">Datos de ejemplo</span>
+            )}
             {result.match_date ? formatDate(result.match_date) : 'Datos más recientes disponibles'}
           </p>
         )}
       </div>
 
       {error ? (
-        <div role="alert" className="mt-5 flex gap-3 rounded-md border border-danger/50 bg-danger/10 p-4 text-danger">
-          <TriangleAlert aria-hidden className="mt-0.5 size-5 shrink-0" />
-          <div>
-            <p className="font-bold">No se pudo calcular el pronóstico</p>
-            <p className="mt-1 text-sm">{error}</p>
-            {error.startsWith('Historial insuficiente') && (
-              <p className="mt-2 text-sm text-ink">
-                Prueba con una fecha posterior (los datos empiezan en agosto de 2000) o deja la fecha vacía.
-              </p>
-            )}
-          </div>
+        <div className="mt-5">
+          <ErrorNotice title="No se pudo calcular el pronóstico" message={error} onRetry={onRetry}>
+            {error.startsWith('Historial insuficiente') &&
+              'Prueba con una fecha posterior (los datos empiezan en agosto de 2000) o deja la fecha vacía.'}
+          </ErrorNotice>
         </div>
       ) : (
         <>
@@ -201,6 +204,7 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
                 prev={prev ? prev.probabilities[o] : null}
                 index={i}
                 winner={result?.predicted === o}
+                loading={busy && !result}
               />
             ))}
           </ul>
