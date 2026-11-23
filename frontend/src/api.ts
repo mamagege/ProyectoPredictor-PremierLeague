@@ -145,6 +145,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiRequestError('No hay conexión con el servicio de predicción.', 0)
   }
   const body = await res.json().catch(() => null)
+  // Una respuesta 200 que no es JSON (por ejemplo, una página HTML) significa que /api no llegó a la API.
+  if (res.ok && body === null) {
+    throw new ApiRequestError('El servicio de predicción devolvió una respuesta inesperada.', 502)
+  }
   if (!res.ok) {
     if (typeof body?.detail === 'string') throw new ApiRequestError(body.detail, res.status)
     throw new ApiRequestError(
