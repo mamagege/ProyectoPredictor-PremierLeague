@@ -160,7 +160,7 @@ export default function ModelView({
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <header>
-        <h1 className="font-display text-4xl font-bold leading-tight sm:text-5xl">Qué tan bien pronostica</h1>
+        <h1 tabIndex={-1} className="text-balance font-display text-4xl font-bold leading-tight focus:outline-none sm:text-5xl">Qué tan bien pronostica</h1>
         {mlp && (
           <p className="mt-3 max-w-[65ch] text-lg text-ink-muted">
             Acierta el resultado en {pct1(mlp.accuracy * 100)} de los partidos nunca vistos, frente al{' '}

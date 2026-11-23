@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { api, type MetricsResponse, type TeamsResponse } from './api'
 import PredictorView from './views/PredictorView'
 import ModelView from './views/ModelView'
@@ -27,11 +27,22 @@ export default function App() {
   const [metrics, setMetrics] = useState<MetricsResponse | null>(null)
   const [metricsError, setMetricsError] = useState<string | null>(null)
 
+  const [navigated, setNavigated] = useState(false)
+  const mainRef = useRef<HTMLElement>(null)
+
   useEffect(() => {
-    const onHash = () => setTab(tabFromHash())
+    const onHash = () => {
+      setTab(tabFromHash())
+      setNavigated(true)
+    }
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
+
+  // Tras cambiar de pantalla, el foco pasa al título de la vista nueva.
+  useEffect(() => {
+    if (navigated) mainRef.current?.querySelector<HTMLElement>('h1')?.focus()
+  }, [tab, navigated])
 
   const fetchTeams = useCallback(
     () => api.teams().then(setTeams).catch((e: Error) => setTeamsError(e.message)),
@@ -61,6 +72,7 @@ export default function App() {
   const go = (t: Tab) => {
     window.location.hash = t === 'modelo' ? '#modelo' : '#predictor'
     setTab(t)
+    setNavigated(true)
   }
 
   const navItem = (t: Tab, label: string) => (
@@ -95,7 +107,10 @@ export default function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <p role="status" className="sr-only">
+        {navigated ? `Pantalla ${tab === 'modelo' ? 'Modelo' : 'Predictor'}` : ''}
+      </p>
+      <main ref={mainRef} className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         {tab === 'predictor' ? (
           <PredictorView
             teams={teams}

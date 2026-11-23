@@ -59,6 +59,9 @@ export default function PredictorView({ teams, teamsError, metrics, onOpenModel,
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
+      <h1 tabIndex={-1} className="sr-only focus:outline-none">
+        Predictor de partidos
+      </h1>
       <div className="lg:sticky lg:top-5">
         <MatchForm teams={teams} offline={teamsError !== null} busy={busy} onSubmit={submit} />
         {teamsError && (
