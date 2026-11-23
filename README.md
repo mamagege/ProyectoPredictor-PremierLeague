@@ -37,8 +37,8 @@ npm --prefix frontend run dev                   # Interfaz en http://localhost:5
 ```
 
 La interfaz tiene tres pantallas:
-- **Predictor:** se eligen local, visitante, fecha (opcional) y cuotas (opcionales). Muestra las tres probabilidades frente a la frecuencia real de cada resultado en los partidos de prueba (2021–25), el estado de cada equipo antes del partido (Elo, forma, goles, descanso, temporada), el historial directo y los avisos del servicio (equipo debutante, fecha posterior a los datos).
-- **Modelo:** comparación con los modelos de referencia, matriz de confusión y resumen de cómo se construyó y evaluó.
+- **Predictor:** se eligen local, visitante, fecha (se escoge entre las fechas con partidos del historial) y cuotas (opcionales). Muestra las tres probabilidades frente a la frecuencia real de cada resultado en los partidos de prueba (2021–25), el pronóstico con umbrales bayesianos cuando difiere del más probable, el estado de cada equipo antes del partido (Elo, forma, goles, descanso, temporada), el historial directo y los avisos del servicio (equipo debutante, fecha posterior a los datos). Debajo, los últimos partidos jugados (al tocar uno se calcula su pronóstico y se compara con el resultado real) y los próximos partidos, que salen del calendario opcional `datasets/fixtures.csv` (plantilla en `datasets/fixtures.template.csv`).
+- **Modelo:** comparación con los modelos de referencia, matriz de confusión, curvas de calibración (ECE, temperatura y umbrales bayesianos) y resumen de cómo se construyó y evaluó.
 - **Privacidad:** qué hace la aplicación con los datos que se escriben (no hay cuentas, cookies ni servicios de terceros).
 
 Si la API no responde, cada pantalla muestra el error con un botón para reintentar.
@@ -84,7 +84,7 @@ Para diseñar la interfaz sin TensorFlow existe un modo simulado: `EPL_MOCK=1 py
 | | `api/main.py` | `src/api.py` |
 |---|---|---|
 | Uso | La consume la interfaz web | API general del backend (documentación en `/docs`) |
-| Rutas | `/api/health`, `/api/teams`, `/api/predict`, `/api/metrics` | `/health`, `/teams`, `/teams/{equipo}/stats`, `/predict`, `/predict/batch`, `/model/metrics` |
+| Rutas | `/api/health`, `/api/teams`, `/api/predict`, `/api/metrics`, `/api/dates`, `/api/matches`, `/api/fixtures` | `/health`, `/teams`, `/teams/{equipo}/stats`, `/predict`, `/predict/batch`, `/model/metrics` |
 | Arranque | `uvicorn api.main:app --port 8000` | `uvicorn src.api:app --port 8000` |
 
 Ambas cargan el mismo `EPLPredictor`, así que devuelven las mismas probabilidades. `src/api.py` acepta orígenes CORS en `CORS_ALLOW_ORIGINS` (separados por coma; por defecto solo la interfaz local).

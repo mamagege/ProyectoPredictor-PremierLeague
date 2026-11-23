@@ -36,6 +36,7 @@ src/
 ├── components/
 │   ├── MatchForm.tsx      # Equipos, fecha (selector de fechas disponibles) y cuotas
 │   ├── MatchesPanel.tsx   # Próximos partidos (calendario opcional) y partidos jugados
+│   ├── Calibration.tsx    # Diagrama de confiabilidad, ECE y umbrales bayesianos
 │   ├── Forecast.tsx       # Las tres probabilidades frente a su frecuencia en 2021–25
 │   ├── Conditions.tsx     # Estado de cada equipo e historial directo
 │   ├── ErrorNotice.tsx    # Aviso de error con causa y botón «Reintentar»
