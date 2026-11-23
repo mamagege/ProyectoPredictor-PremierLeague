@@ -11,7 +11,7 @@ colors:
   outcome-home: "#3fd8c8"
   outcome-draw: "#f4c95d"
   outcome-away: "#ff7a93"
-  action: "#8dbbff"
+  action: "#5aa0ff"
   danger: "#ff9aa9"
 typography:
   display:
@@ -80,9 +80,9 @@ components:
 
 **Creative North Star: "El Boletín del Partido"**
 
-*Pronóstico* es, en español, tanto predicción como parte del tiempo. El sistema toma esa coincidencia al pie de la letra: cada partido recibe un boletín con tres probabilidades que suman 100 %, una escala de 0 a 100 y la «normal» histórica marcada sobre cada barra, igual que un parte meteorológico compara el día con lo habitual. La escena de uso es el sofá, la noche previa al partido, en el móvil; por eso el sistema es oscuro, tinta azul, y cada cifra se lee de un vistazo.
+*Pronóstico* es, en español, tanto predicción como parte del tiempo. El sistema toma esa coincidencia al pie de la letra: cada partido recibe un boletín con tres probabilidades que suman 100 %, una escala de 0 a 100 y la frecuencia de 2021 a 2025 marcada sobre cada barra, igual que un parte meteorológico compara el día con lo habitual. La escena de uso es el sofá, la noche previa al partido, en el móvil; por eso el sistema es oscuro, tinta azul, y cada cifra se lee de un vistazo.
 
-La densidad es de herramienta, no de póster: barra superior estándar, columna de entrada a la izquierda, boletín a la derecha, tablas de verdad para comparar. El mundo meteorológico aporta solo cuatro cosas: la paleta tipo radar, la tipografía condensada de boletín con cifras tabulares, la densidad ordenada y un gesto firma, la marca de la normal histórica. Nunca aporta iconos de sol y nubes ni estructura.
+La densidad es de herramienta, no de póster: barra superior estándar, columna de entrada a la izquierda, boletín a la derecha, tablas de verdad para comparar. El mundo meteorológico aporta solo cuatro cosas: la paleta tipo radar, la tipografía condensada de boletín con cifras tabulares, la densidad ordenada y un gesto firma, la marca de la frecuencia 2021–25. Nunca aporta iconos de sol y nubes ni estructura.
 
 **Key Characteristics:**
 - Tinta azul nocturna con tres tonos de señal, uno por desenlace; el color nunca va solo, siempre con etiqueta y cifra.
@@ -102,7 +102,7 @@ Paleta de noche con escala de radar: un fondo azul tinta en tres escalones y tre
 - **Coral de Eco** (#ff7a93): Victoria visitante y celdas de error en la matriz de confusión.
 
 ### Tertiary
-- **Azul de Acción** (#8dbbff): único color de acción: botón primario, enlaces, anillo de foco, pestaña activa, selección de texto.
+- **Azul de Acción** (#5aa0ff): único color de acción: botón primario, enlaces, anillo de foco, pestaña activa, selección de texto.
 - **Rosa de Error** (#ff9aa9): mensajes de error de validación y de servicio.
 
 ### Neutral
@@ -148,7 +148,7 @@ Ritmo de espaciado: 20 px entre paneles y dentro de ellos en móvil, 24 px desde
 
 ## Elevation & Depth
 
-Plano. La profundidad se logra con tres escalones tonales (tinta, panel, capa elevada) y bordes de 1 px en azul de isobara; no hay sombras en ningún componente. El único elemento que «sale» de la superficie es la marca blanca de la normal histórica, que sobrepasa la barra 6 px por arriba.
+Plano. La profundidad se logra con tres escalones tonales (tinta, panel, capa elevada) y bordes de 1 px en azul de isobara; no hay sombras en ningún componente. El único elemento que «sale» de la superficie es la marca blanca de la frecuencia 2021–25, que sobrepasa la barra 6 px por arriba.
 
 ### Named Rules
 **The Flat-By-Default Rule.** Ninguna sombra ni desenfoque decorativo. La jerarquía se construye con el escalón tonal y el borde fino.
@@ -161,7 +161,7 @@ Esquinas contenidas: paneles de 8 px, campos y botones de 6 px, barras de probab
 
 ### Buttons
 - **Shape:** esquina contenida (6 px), altura mínima de 44 px para el tacto.
-- **Primary:** fondo azul de acción (#8dbbff) con texto tinta (#07142a), tipografía Title de 1.125rem, ancho completo en el formulario. Un solo botón primario por pantalla: «Calcular pronóstico».
+- **Primary:** fondo azul de acción (#5aa0ff) con texto tinta (#07142a), tipografía Title de 1.125rem, ancho completo en el formulario. Un solo botón primario por pantalla: «Calcular pronóstico».
 - **Hover / Focus:** hover aumenta el brillo; foco con anillo de 2 px azul de acción a 2 px de distancia; estado ocupado con indicador giratorio y texto «Calculando…»; deshabilitado al 60 % de opacidad.
 - **Secondary:** botón circular de 36 px con borde fino para intercambiar equipos; enlace subrayado en azul para «Ver cómo se evaluó».
 
@@ -181,22 +181,22 @@ Esquinas contenidas: paneles de 8 px, campos y botones de 6 px, barras de probab
 Barra superior estándar sobre el panel nocturno: marca (tres isobaras de colores + «Predictor EPL») a la izquierda y pestañas «Predictor» / «Modelo» a la derecha. La pestaña activa lleva un subrayado de 2 px en azul de acción y `aria-current="page"`; las inactivas van en texto atenuado. Misma disposición en móvil, sin menú hamburguesa.
 
 ### Outcome Bar (componente firma)
-Fila por desenlace: etiqueta a la izquierda («Victoria de Arsenal», con «más probable» en pequeño si corresponde), cifra Display a la derecha en el color del desenlace; debajo una pista de 12 px de capa elevada con relleno del color y la **marca blanca de la normal histórica** (frecuencia real del desenlace en el conjunto de prueba); al pie, «Normal histórica: x %» y la diferencia en puntos respecto a lo normal con una flecha. Las barras crecen una vez desde la izquierda, con 90 ms de desfase entre filas; al recalcular el mismo partido aparece un aviso persistente con el cambio respecto al cálculo anterior.
+Sobre la lista, una barra apilada de 16 px con los tres tramos del 100 % da la forma de la distribución de un vistazo. Cada fila: punto de color y etiqueta a la izquierda («Victoria de Arsenal», con «más probable» en pequeño si corresponde), cifra Display a la derecha en el color del desenlace; debajo una pista de 12 px de capa elevada con relleno del color y la **marca blanca de la frecuencia 2021–25** (frecuencia real del desenlace en los 1.490 partidos de prueba); al pie, «Frecuencia 2021–25: x %» y la diferencia en puntos con una flecha. En el estado vacío la cifra es un guion atenuado. Las barras crecen una vez desde la izquierda, con 90 ms de desfase entre filas; al recalcular el mismo partido aparece un aviso persistente con el cambio respecto al cálculo anterior.
 
 ### Tablas
-Tablas semánticas con encabezados de fila y de columna, separadores de 1 px, sin cebra. El mejor valor de cada fila o columna lleva una marca de verificación y negrita (con texto oculto «mejor» para lectores de pantalla). La matriz de confusión usa celdas con tinte aqua (acierto) o coral (error) proporcional al porcentaje de la fila, con un máximo del 60 % para conservar el contraste.
+Tablas semánticas con encabezados de fila y de columna, separadores de 1 px, sin cebra. El mejor valor de cada fila o columna lleva una marca de verificación y negrita (con texto oculto «mejor» para lectores de pantalla). La matriz de confusión usa una escala neutra (texto boletín sobre capa elevada, proporcional al porcentaje de la fila, máximo 40 %) y marca los aciertos de la diagonal con un borde de 2 px: no reutiliza aqua ni coral, que significan Local y Visitante.
 
 ### Avisos
 Bloque ámbar (`role="status"`) para datos antiguos de un equipo; bloque rosa (`role="alert"`) para errores. Siempre con icono dibujado (Lucide), texto que explica la causa y qué hacer.
 
 ### Intro de entrada
-Cubierta de pantalla completa que se reproduce una sola vez por sesión: fondo sólido en azul de isobara (#28466f) con la marca centrada en texto boletín (#e6eef9). Tras 250 ms, un trazo continuo del mismo color se desenreda durante 2 s (desfase del trazo con `cubic-bezier(.645,.045,.355,1)`, grosor de 0,31 a 0,08 con `cubic-bezier(.75,.15,.15,1)`), el fondo se desvanece en el primer 18 %, la marca desaparece a los 950 ms y la cubierta se elimina al terminar. Escape o un toque la saltan; con `prefers-reduced-motion` no aparece; se congela con la pestaña oculta. Es el único movimiento de gran escala del sistema.
+Cubierta de pantalla completa que se reproduce solo en la primera visita a la app: fondo sólido en azul de isobara (#28466f) con la marca centrada en texto boletín (#e6eef9). Tras 250 ms, un trazo continuo del mismo color se desenreda durante 2 s (desfase del trazo con `cubic-bezier(.645,.045,.355,1)`, grosor de 0,31 a 0,08 con `cubic-bezier(.75,.15,.15,1)`), el fondo se desvanece en el primer 18 %, la marca desaparece a los 950 ms y la cubierta se elimina al terminar. Escape o un toque la saltan; con `prefers-reduced-motion` no aparece; se congela con la pestaña oculta. Es el único movimiento de gran escala del sistema.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** mostrar siempre las tres probabilidades juntas, con cifra y etiqueta, y la normal histórica de cada una.
-- **Do** usar el azul de acción (#8dbbff) solo para lo que se puede pulsar.
+- **Do** mostrar siempre las tres probabilidades juntas, con cifra y etiqueta, y la frecuencia 2021–25 de cada una.
+- **Do** usar el azul de acción (#5aa0ff) solo para lo que se puede pulsar.
 - **Do** mantener el sistema plano: separar con escalones tonales y bordes de 1 px.
 - **Do** escribir en español con coma decimal y explicar cada indicador sin jerga de ML.
 - **Do** respetar `prefers-reduced-motion`: las barras y el aviso de cambio no se animan.
