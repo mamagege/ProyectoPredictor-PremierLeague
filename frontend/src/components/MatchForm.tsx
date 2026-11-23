@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ArrowLeftRight, ChevronDown, Loader2 } from 'lucide-react'
 import type { PredictRequest, TeamsResponse } from '../api'
+import { formatDate } from '../lib/format'
 
 interface Props {
   teams: TeamsResponse | null
@@ -132,7 +133,8 @@ export default function MatchForm({ teams, offline, busy, onSubmit }: Props) {
           </label>
           <input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputBase} />
           <p className="mt-1.5 text-sm text-muted">
-            Con fecha, el modelo usa solo lo ocurrido antes. Sin fecha, usa los datos más recientes (hasta mayo de 2025).
+            Con fecha, el modelo usa solo lo ocurrido antes. Sin fecha, usa los datos más recientes
+            {teams?.data_end ? ` (hasta el ${formatDate(teams.data_end)})` : ''}.
           </p>
         </div>
 

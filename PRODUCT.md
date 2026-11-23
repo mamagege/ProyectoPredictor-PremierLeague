@@ -12,22 +12,22 @@ Aficionado curioso de la Premier League (hispanohablante) que quiere ver qué ta
 
 ## Product Purpose
 
-Predictor EPL estima la distribución de probabilidad pre-partido del resultado de un encuentro de la English Premier League con una red neuronal profunda (Deep MLP, softmax de 3 clases). El usuario elige equipo local, visitante, fecha opcional y cuotas opcionales; recibe tres probabilidades que suman 100 % y el contexto que las explica (Elo, forma, descanso, historial directo). Éxito: que el usuario lea la incertidumbre, no solo un "ganador".
+Predictor EPL estima la distribución de probabilidad pre-partido del resultado de un encuentro de la English Premier League con una red neuronal profunda (Residual Deep MLP de 3 bloques, softmax de 3 clases calibrada con temperature scaling). El usuario elige equipo local, visitante, fecha opcional y cuotas opcionales; recibe tres probabilidades que suman 100 % y el contexto que las explica (Elo, forma, descanso, historial directo). Éxito: que el usuario lea la incertidumbre, no solo un "ganador".
 
 ## Positioning
 
-Muestra probabilidades calibradas y sus límites, no un veredicto. El modelo tiene exactitud 55,4 % y log loss 0,956 en 1.490 partidos nunca vistos, y casi nunca predice el empate; la interfaz lo dice abiertamente en lugar de esconderlo.
+Muestra probabilidades calibradas y sus límites, no un veredicto. El modelo tiene exactitud 56,7 % y log loss 0,952 en 1.520 partidos nunca vistos (2021/22–2024/25), muy cerca de las cuotas de Bet365 y de la regresión logística (56,9 %) pero sin superarlas, y rara vez marca el empate como lo más probable; la interfaz lo dice abiertamente en lugar de esconderlo.
 
 ## Operating Context
 
-Proyecto del curso PTIA, Grupo 04, Escuela Colombiana de Ingeniería Julio Garavito. Hito 2 pide prototipo de interfaz navegable; Hito 3 un MVP funcional con demo en video. El frontend consume una API FastAPI local (`/api/teams`, `/api/predict`, `/api/metrics`) que envuelve `prediction_service.py`. Datos hasta mayo de 2025 (temporada 2024/25); 20 equipos actuales y 46 históricos.
+Proyecto del curso PTIA, Grupo 04, Escuela Colombiana de Ingeniería Julio Garavito. Hito 2 pide prototipo de interfaz navegable; Hito 3 un MVP funcional con demo en video. El frontend consume una API FastAPI local (`/api/teams`, `/api/predict`, `/api/metrics`) que envuelve `prediction_service.py`. Datos hasta agosto de 2026 (inicio de la temporada 2026/27); la API toma como "actuales" los 20 equipos de la temporada más reciente del historial.
 
 ## Capabilities and Constraints
 
 - Entradas: equipo local, equipo visitante, fecha opcional (YYYY-MM-DD), cuotas decimales opcionales [local, empate, visitante], todas > 1,00. Sin cuotas el modelo deriva una probabilidad de mercado desde el Elo; la UI debe decirlo.
 - Salidas: probabilidades en %, clase más probable, estado de cada equipo (Elo, forma de 5, goles a favor/en contra, descanso, puntos y diferencia de gol de la temporada), historial directo en %.
 - Errores esperables: equipo desconocido, mismo equipo en ambos lados, historial insuficiente antes de la fecha.
-- El empate casi nunca es la clase más probable (F1 de empate 0 en test); no presentarlo como fallo.
+- El empate casi nunca es la clase más probable (F1 de empate 0,11 en test con argmax); no presentarlo como fallo.
 - Idioma de la interfaz: español. Equipos con nombres canónicos del dataset (Man City, Nott'm Forest, Wolves…).
 
 ## Brand Commitments
@@ -36,7 +36,7 @@ Producto con identidad propia; la Escuela Colombiana de Ingeniería Julio Garavi
 
 ## Evidence on Hand
 
-`models/training_summary.json` con benchmark real (Dummy, Regresión Logística, HistGradientBoosting, Deep MLP), matriz de confusión y métricas de test. Datos de 3 fuentes tabulares en `datasets/`. No hay testimonios, usuarios reales ni escudos de clubes con licencia: no inventarlos.
+`models/training_summary.json` con benchmark real (Dummy, Bet365, Regresión Logística, HistGradientBoosting, Deep MLP del Hito 2, Residual Deep MLP sin calibrar y calibrado, ablación sin cuotas), matriz de confusión y métricas de test. Datos de 3 fuentes tabulares en `datasets/`. No hay testimonios, usuarios reales ni escudos de clubes con licencia: no inventarlos.
 
 ## Product Principles
 
