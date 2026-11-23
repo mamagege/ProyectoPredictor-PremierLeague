@@ -13,7 +13,7 @@ const ITEMS: [string, string][] = [
   ],
   [
     'De dónde salen los datos de los partidos',
-    'De tres conjuntos de datos públicos de Kaggle incluidos en el repositorio del proyecto, con partidos hasta mayo de 2025. Lo que escribes en la aplicación nunca se envía a esas fuentes.',
+    'De tres conjuntos de datos públicos de Kaggle incluidos en el repositorio del proyecto, con partidos desde agosto de 2000 hasta agosto de 2026. Lo que escribes en la aplicación nunca se envía a esas fuentes.',
   ],
   [
     'Sobre las apuestas',
