@@ -2,11 +2,17 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { api, type MetricsResponse, type TeamsResponse } from './api'
 import PredictorView from './views/PredictorView'
 import ModelView from './views/ModelView'
+import PrivacyView from './views/PrivacyView'
 import Intro from './components/Intro'
 
-type Tab = 'predictor' | 'modelo'
+type Tab = 'predictor' | 'modelo' | 'privacidad'
 
-const tabFromHash = (): Tab => (window.location.hash === '#modelo' ? 'modelo' : 'predictor')
+const LABELS: Record<Tab, string> = { predictor: 'Predictor', modelo: 'Modelo', privacidad: 'Privacidad' }
+
+const tabFromHash = (): Tab => {
+  const h = window.location.hash.slice(1)
+  return h === 'modelo' || h === 'privacidad' ? h : 'predictor'
+}
 
 function Mark() {
   return (
@@ -70,14 +76,14 @@ export default function App() {
   }
 
   const go = (t: Tab) => {
-    window.location.hash = t === 'modelo' ? '#modelo' : '#predictor'
+    window.location.hash = `#${t}`
     setTab(t)
     setNavigated(true)
   }
 
   const navItem = (t: Tab, label: string) => (
     <a
-      href={t === 'modelo' ? '#modelo' : '#predictor'}
+      href={`#${t}`}
       aria-current={tab === t ? 'page' : undefined}
       onClick={(e) => {
         e.preventDefault()
@@ -108,7 +114,7 @@ export default function App() {
       </header>
 
       <p role="status" className="sr-only">
-        {navigated ? `Pantalla ${tab === 'modelo' ? 'Modelo' : 'Predictor'}` : ''}
+        {navigated ? `Pantalla ${LABELS[tab]}` : ''}
       </p>
       <main ref={mainRef} className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         {tab === 'predictor' ? (
@@ -119,14 +125,29 @@ export default function App() {
             onOpenModel={() => go('modelo')}
             onRetryTeams={retryTeams}
           />
-        ) : (
+        ) : tab === 'modelo' ? (
           <ModelView metrics={metrics} error={metricsError} onRetry={retryMetrics} />
+        ) : (
+          <PrivacyView />
         )}
       </main>
 
       <footer className="mx-auto max-w-6xl px-4 pb-8 text-sm text-ink-muted sm:px-6">
-        Proyecto PTIA · Escuela Colombiana de Ingeniería Julio Garavito · Grupo 04. Probabilidades estadísticas para
-        entender el juego; no son una recomendación de apuesta.
+        <p>
+          Proyecto PTIA · Escuela Colombiana de Ingeniería Julio Garavito · Grupo 04. Probabilidades estadísticas para
+          entender el juego; no son una recomendación de apuesta.
+        </p>
+        <a
+          href="#privacidad"
+          aria-current={tab === 'privacidad' ? 'page' : undefined}
+          onClick={(e) => {
+            e.preventDefault()
+            go('privacidad')
+          }}
+          className="mt-2 inline-flex min-h-11 items-center font-bold text-accent underline"
+        >
+          Privacidad
+        </a>
       </footer>
     </div>
   )
