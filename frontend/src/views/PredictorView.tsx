@@ -1,23 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { api, type MetricsResponse, type PredictRequest, type PredictResponse, type TeamsResponse } from '../api'
 import MatchForm from '../components/MatchForm'
-import Forecast, { type BaseRates } from '../components/Forecast'
+import Forecast from '../components/Forecast'
 import Conditions from '../components/Conditions'
+import { baseRatesFrom } from '../lib/rates'
 
 interface Props {
   teams: TeamsResponse | null
   teamsError: string | null
   metrics: MetricsResponse | null
   onOpenModel: () => void
-}
-
-/** Frecuencia real de cada desenlace en el conjunto de prueba (la "normal"). */
-function baseRatesFrom(m: MetricsResponse | null): BaseRates | null {
-  if (!m) return null
-  const rows = m.confusion_matrix.map((r) => r.reduce((a, b) => a + b, 0))
-  const total = rows.reduce((a, b) => a + b, 0)
-  if (!total) return null
-  return { home: (rows[0] / total) * 100, draw: (rows[1] / total) * 100, away: (rows[2] / total) * 100 }
 }
 
 export default function PredictorView({ teams, teamsError, metrics, onOpenModel }: Props) {

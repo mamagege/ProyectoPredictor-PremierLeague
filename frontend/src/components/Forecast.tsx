@@ -1,8 +1,8 @@
 import { ArrowDown, ArrowUp, Info, TriangleAlert } from 'lucide-react'
 import type { Outcome, PredictResponse } from '../api'
 import { formatDate, num1, pct1, signed1 } from '../lib/format'
-
-export type BaseRates = Record<Outcome, number>
+import type { BaseRates } from '../lib/rates'
+import { staleWarnings } from '../lib/stale'
 
 interface Props {
   result: PredictResponse | null
@@ -96,26 +96,6 @@ function Row({
       </div>
     </li>
   )
-}
-
-const STALE_DAYS = 400
-
-/** Avisos cuando el estado de un equipo viene de datos muy viejos respecto a la fecha del pronóstico. */
-function staleWarnings(r: PredictResponse): string[] {
-  const ref = new Date(r.match_date ?? r.data_end ?? '')
-  if (Number.isNaN(ref.getTime())) return []
-  const out: string[] = []
-  for (const [team, last] of [
-    [r.home_team, r.home_last_match],
-    [r.away_team, r.away_last_match],
-  ] as const) {
-    if (!last) continue
-    const days = (ref.getTime() - new Date(last).getTime()) / 86_400_000
-    if (days > STALE_DAYS) {
-      out.push(`${team} no tiene partidos registrados desde ${formatDate(last)}: su estado viene de datos de esa época.`)
-    }
-  }
-  return out
 }
 
 export default function Forecast({ result, previous, busy, error, baseRates, accuracy, onOpenModel }: Props) {

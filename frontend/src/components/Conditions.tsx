@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react'
 import type { PredictResponse, TeamState } from '../api'
+import { leader } from '../lib/compare'
 import { num0, num1, num2, pct1 } from '../lib/format'
 
 interface Metric {
@@ -19,12 +20,6 @@ const METRICS: Metric[] = [
   { key: 'season_pts', label: 'Puntos de la temporada', hint: 'Acumulados antes de esta fecha', fmt: num0, better: 'high' },
   { key: 'season_gd', label: 'Diferencia de gol', hint: 'Goles a favor menos en contra, temporada', fmt: num0, better: 'high' },
 ]
-
-function leader(m: Metric, h: number, a: number): 'home' | 'away' | null {
-  if (!m.better || h === a) return null
-  const homeWins = m.better === 'high' ? h > a : h < a
-  return homeWins ? 'home' : 'away'
-}
 
 export default function Conditions({ result }: { result: PredictResponse }) {
   const { home_state: h, away_state: a, h2h } = result
@@ -57,7 +52,7 @@ export default function Conditions({ result }: { result: PredictResponse }) {
             {METRICS.map((m) => {
               const hv = h[m.key]
               const av = a[m.key]
-              const lead = leader(m, hv, av)
+              const lead = leader(m.better, hv, av)
               return (
                 <tr key={m.key} className="border-b border-line last:border-0">
                   <td className={`py-3 pr-3 ${lead === 'home' ? 'font-bold text-ink' : 'text-ink-muted'}`}>
