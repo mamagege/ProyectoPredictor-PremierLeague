@@ -11,7 +11,8 @@ Sistema que estima, antes de que empiece un partido de la English Premier League
 | Hito 2 — video | [Video del Hito 2](https://youtu.be/vJ2x2CfAMa4) |
 | Hito 2 — documento | [`docs/Hito2Proyecto.pdf`](docs/Hito2Proyecto.pdf) |
 | Hito 3 — video de sustentación | [Video de sustentación del Hito 3 (PTIA)](https://www.youtube.com/watch?v=n6CiU09yKRM) |
-| Hito 3 — documento | _pendiente_ |
+| Hito 3 — documento | [`docs/Hito3_Proyecto_PTIA_Grupo04.docx`](docs/Hito3_Proyecto_PTIA_Grupo04.docx) |
+| Hito 3 — MVP desplegado | [predictor-epl-ptia.vercel.app](https://predictor-epl-ptia.vercel.app/) |
 
 ---
 
@@ -70,6 +71,7 @@ Para diseñar la interfaz sin TensorFlow existe un modo simulado: `EPL_MOCK=1 py
 │   └── Proyecto_Red_Neuronal_Profunda_EPL.ipynb   # Notebook del Hito 2 (modelo anterior)
 ├── docs/
 │   ├── Hito2Proyecto.pdf                          # Documento entregado en el Hito 2
+│   ├── Hito3_Proyecto_PTIA_Grupo04.docx           # Documento entregado en el Hito 3
 │   ├── AUDITORIA_INDEPENDIENTE_BACKEND_HITO3.md   # Auditoría técnica del backend
 │   └── adr/0001-frontend-y-api.md                 # Decisiones de arquitectura del frontend y la API
 ├── PRODUCT.md, DESIGN.md           # Contexto de producto y sistema de diseño de la interfaz
