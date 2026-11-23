@@ -77,6 +77,38 @@ export interface MetricsResponse {
   confusion_matrix_norm: number[][]
 }
 
+export interface MatchDay {
+  date: string
+  matches: number
+}
+
+/** Partido ya jugado del historial, con su resultado real. */
+export interface PlayedMatch {
+  date: string
+  home_team: string
+  away_team: string
+  home_goals: number
+  away_goals: number
+  result: 'H' | 'D' | 'A'
+  season: string | null
+}
+
+/** Partido futuro del calendario opcional (no tiene resultado). */
+export interface Fixture {
+  date: string
+  home_team: string
+  away_team: string
+  round: string | null
+  known: boolean
+}
+
+export interface FixturesResponse {
+  available: boolean
+  fixtures: Fixture[]
+  skipped: number
+  data_end: string
+}
+
 /** Error de la API con el estado HTTP (0 = sin conexión). Los 0 y 5xx se pueden reintentar. */
 export class ApiRequestError extends Error {
   readonly status: number
@@ -128,4 +160,10 @@ export const api = {
   predict: (body: PredictRequest) =>
     request<PredictResponse>('/api/predict', { method: 'POST', body: JSON.stringify(body) }),
   metrics: () => request<MetricsResponse>('/api/metrics'),
+  dates: () => request<{ dates: MatchDay[] }>('/api/dates').then((r) => r.dates),
+  matches: (date?: string) =>
+    request<{ date: string | null; matches: PlayedMatch[] }>(date ? `/api/matches?date=${date}` : '/api/matches').then(
+      (r) => r.matches,
+    ),
+  fixtures: () => request<FixturesResponse>('/api/fixtures'),
 }

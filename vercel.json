@@ -1,0 +1,24 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "frontend": {
+      "root": "frontend",
+      "rewrites": [
+        { "source": "/(.*)", "destination": "/index.html" }
+      ]
+    },
+    "backend": {
+      "root": ".",
+      "entrypoint": "api.main:app",
+      "functions": {
+        "api/main.py": {
+          "excludeFiles": "{tests/**,notebooks/**,docs/**,frontend/**,.venv/**,models/hito2/**,datasets/English Premier League Match Data (2000-2025)/**}"
+        }
+      }
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": { "service": "backend" } },
+    { "source": "/(.*)", "destination": { "service": "frontend" } }
+  ]
+}
