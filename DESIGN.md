@@ -2,16 +2,16 @@
 name: Predictor EPL
 description: Boletín nocturno de probabilidades pre-partido de la Premier League, con la incertidumbre siempre a la vista.
 colors:
-  ground: "#07142a"
-  panel: "#0b1d38"
+  canvas: "#07142a"
+  surface: "#0b1d38"
   raised: "#12294b"
-  hairline: "#28466f"
-  text: "#e6eef9"
-  text-muted: "#a3b6d1"
+  line: "#28466f"
+  ink: "#e6eef9"
+  ink-muted: "#a3b6d1"
   outcome-home: "#3fd8c8"
   outcome-draw: "#f4c95d"
   outcome-away: "#ff7a93"
-  action: "#5aa0ff"
+  accent: "#5aa0ff"
   danger: "#ff9aa9"
 typography:
   display:
@@ -52,20 +52,20 @@ spacing:
   xl: "32px"
 components:
   button-primary:
-    backgroundColor: "{colors.action}"
-    textColor: "{colors.ground}"
+    backgroundColor: "{colors.accent}"
+    textColor: "{colors.canvas}"
     typography: "{typography.title}"
     rounded: "{rounded.md}"
     padding: "10px 16px"
     height: "44px"
   input:
     backgroundColor: "{colors.raised}"
-    textColor: "{colors.text}"
+    textColor: "{colors.ink}"
     rounded: "{rounded.md}"
     padding: "10px 12px"
   panel:
-    backgroundColor: "{colors.panel}"
-    textColor: "{colors.text}"
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
     rounded: "{rounded.lg}"
     padding: "24px"
   outcome-track:
@@ -119,6 +119,8 @@ Paleta de noche con escala de radar: un fondo azul tinta en tres escalones y tre
 **The One Action Rule.** El azul de acción es el único color de interacción. Si algo es clicable y no es un resultado, es azul o texto.
 
 **The Never-Alone Rule.** Ninguna probabilidad depende solo del color: siempre lleva etiqueta y valor numérico.
+
+**The Role Names Rule.** Los colores se nombran por rol (`canvas`, `surface`, `line`, `ink`, `accent`), no por tono, y se declaran como canales RGB en `:root` (por ejemplo `--surface: 11 29 56`); Tailwind los lee como `rgb(var(--surface))`. Un modo claro es cambiar esos valores. Los tres colores reservados (`outcome-*`) conservan su significado en cualquier modo.
 
 ## Typography
 
@@ -187,7 +189,10 @@ Sobre la lista, una barra apilada de 16 px con los tres tramos del 100 % da la f
 Tablas semánticas con encabezados de fila y de columna, separadores de 1 px, sin cebra. El mejor valor de cada fila o columna lleva una marca de verificación y negrita (con texto oculto «mejor» para lectores de pantalla). La matriz de confusión usa una escala neutra (texto boletín sobre capa elevada, proporcional al porcentaje de la fila, máximo 40 %) y marca los aciertos de la diagonal con un borde de 2 px: no reutiliza aqua ni coral, que significan Local y Visitante.
 
 ### Avisos
-Bloque ámbar (`role="status"`) para datos antiguos de un equipo; bloque rosa (`role="alert"`) para errores. Siempre con icono dibujado (Lucide), texto que explica la causa y qué hacer.
+Bloque ámbar (`role="status"`) para datos antiguos de un equipo; bloque rosa (`role="alert"`) para errores. Siempre con icono dibujado (Lucide), texto que explica la causa y qué hacer. Los errores que reintentar puede resolver (sin conexión o fallo del servidor) llevan el botón «Reintentar» de 44 px; los de validación, no.
+
+### Estados de cada vista
+Toda vista tiene cuatro estados y nunca queda en blanco: **cargando** (en el Predictor, las cifras pulsan con la forma final del boletín; en Modelo, tres marcadores con la altura de los paneles; sin movimiento con `prefers-reduced-motion`), **vacío** (las barras con la frecuencia 2021–25 y un guion atenuado), **error** con causa y recuperación, y **datos de ejemplo** señalados con una etiqueta «Datos de ejemplo» cuando la API responde en modo simulado. Tras cambiar de pantalla, el foco pasa al título de la vista nueva y un `role="status"` oculto anuncia el cambio.
 
 ### Intro de entrada
 Cubierta de pantalla completa que se reproduce solo en la primera visita a la app: fondo sólido en azul de isobara (#28466f) con la marca centrada en texto boletín (#e6eef9). Tras 250 ms, un trazo continuo del mismo color se desenreda durante 2 s (desfase del trazo con `cubic-bezier(.645,.045,.355,1)`, grosor de 0,31 a 0,08 con `cubic-bezier(.75,.15,.15,1)`), el fondo se desvanece en el primer 18 %, la marca desaparece a los 950 ms y la cubierta se elimina al terminar. Escape o un toque la saltan; con `prefers-reduced-motion` no aparece; se congela con la pestaña oculta. Es el único movimiento de gran escala del sistema.
