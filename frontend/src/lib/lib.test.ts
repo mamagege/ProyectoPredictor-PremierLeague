@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { bezier } from './bezier'
 import { leader } from './compare'
+import { outcomeOf, predictedRight, score } from './matches'
 import { formatDate, num1, pct1, signed1 } from './format'
 import { baseRatesFrom } from './rates'
 import { staleWarnings } from './stale'
@@ -103,5 +104,21 @@ describe('curvas cubic-bezier de la intro', () => {
   })
   it('la curva lineal es la identidad', () => {
     expect(bezier(0, 0, 1, 1)(0.3)).toBeCloseTo(0.3, 3)
+  })
+})
+
+describe('partidos jugados', () => {
+  it('traduce la letra del resultado al desenlace', () => {
+    expect(outcomeOf({ result: 'H' })).toBe('home')
+    expect(outcomeOf({ result: 'D' })).toBe('draw')
+    expect(outcomeOf({ result: 'A' })).toBe('away')
+  })
+  it('compara el desenlace más probable con lo que pasó', () => {
+    expect(predictedRight('home', { result: 'H' })).toBe(true)
+    expect(predictedRight('draw', { result: 'A' })).toBe(false)
+  })
+  it('escribe el marcador con guion largo', () => {
+    expect(score({ home_goals: 2, away_goals: 1 })).toBe('2–1')
+    expect(score({ home_goals: 0, away_goals: 0 })).toBe('0–0')
   })
 })
