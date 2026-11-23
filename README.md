@@ -9,7 +9,7 @@ Sistema que estima, antes de que empiece un partido de la English Premier League
 | Entrega | Material |
 |---|---|
 | Hito 2 — video | https://youtu.be/vJ2x2CfAMa4 |
-| Hito 2 — documento | `Hito2Proyecto.pdf` |
+| Hito 2 — documento | [`docs/Hito2Proyecto.pdf`](docs/Hito2Proyecto.pdf) |
 | Hito 3 — video (máx. 10 min) | _pendiente_ |
 | Hito 3 — documento | _pendiente_ |
 
@@ -62,11 +62,18 @@ Para diseñar la interfaz sin TensorFlow existe un modo simulado: `EPL_MOCK=1 py
 ├── models/                         # Artefactos del modelo desplegado
 ├── tests/                          # Pruebas unitarias, de integración y de las dos APIs
 ├── datasets/                       # Fuentes tabulares (Kaggle)
-├── Hito3_Evaluacion_Modelo.ipynb   # Evaluación del modelo del Hito 3 y casos de prueba
-├── Proyecto_Red_Neuronal_Profunda_EPL.ipynb   # Notebook del Hito 2 (modelo anterior)
+├── notebooks/
+│   ├── Hito3_Evaluacion_Modelo.ipynb              # Evaluación del modelo del Hito 3 y casos de prueba
+│   └── Proyecto_Red_Neuronal_Profunda_EPL.ipynb   # Notebook del Hito 2 (modelo anterior)
+├── docs/
+│   ├── Hito2Proyecto.pdf                          # Documento entregado en el Hito 2
+│   └── AUDITORIA_INDEPENDIENTE_BACKEND_HITO3.md   # Auditoría técnica del backend
 ├── PRODUCT.md, DESIGN.md           # Contexto de producto y sistema de diseño de la interfaz
-└── AUDITORIA_INDEPENDIENTE_BACKEND_HITO3.md   # Auditoría técnica del backend
+├── requirements.txt                # Dependencias del backend y la API
+└── requirements-notebook.txt       # Dependencias extra para los notebooks
 ```
+
+`PRODUCT.md` y `DESIGN.md` quedan en la raíz porque las herramientas de diseño de la interfaz los buscan ahí.
 
 ### Dos APIs sobre el mismo servicio
 
@@ -101,7 +108,7 @@ Ambas cargan el mismo `EPLPredictor`, así que devuelven las mismas probabilidad
 | Residual Deep MLP calibrado (umbrales bayesianos) | 52,11 % | 48,39 % | 27,53 % | 0,9516 | 0,5631 |
 | Ablación sin cuotas (40 variables) | 54,74 % | 41,78 % | 3,74 % | 0,9726 | 0,5770 |
 
-La red mejora al modelo del Hito 2 y a HistGradientBoosting, pero queda 0,20 puntos por detrás de Bet365 y de la regresión logística en exactitud. En la temporada 2025/26 todos los modelos bajan (red: 46,84 %, *log loss* 1,0326; Bet365: 48,95 %, 1,0185). El análisis completo y los casos de prueba con partidos reales están en `Hito3_Evaluacion_Modelo.ipynb`.
+La red mejora al modelo del Hito 2 y a HistGradientBoosting, pero queda 0,20 puntos por detrás de Bet365 y de la regresión logística en exactitud. En la temporada 2025/26 todos los modelos bajan (red: 46,84 %, *log loss* 1,0326; Bet365: 48,95 %, 1,0185). El análisis completo y los casos de prueba con partidos reales están en [`notebooks/Hito3_Evaluacion_Modelo.ipynb`](notebooks/Hito3_Evaluacion_Modelo.ipynb).
 
 ---
 
@@ -114,7 +121,7 @@ python -m src.train                           # Reentrenar y regenerar models/ (
 pip install -r requirements-notebook.txt      # Dependencias para abrir los notebooks (matplotlib, seaborn, JupyterLab)
 ```
 
-El notebook del Hito 2 guarda su modelo en `models/hito2/` y no reemplaza el modelo desplegado si se vuelve a ejecutar.
+Los notebooks se abren desde `notebooks/` y leen datos y modelos de la raíz del repositorio. El del Hito 2 guarda su modelo en `models/hito2/` y no reemplaza el modelo desplegado si se vuelve a ejecutar.
 
 ## Fuentes de datos
 
