@@ -60,7 +60,7 @@ function Row({
         aria-label={
           value === null
             ? `${label}: sin calcular`
-            : `${label}: ${pct1(value)}${base !== null ? `, la normal histórica es ${pct1(base)}` : ''}`
+            : `${label}: ${pct1(value)}${base !== null ? `, en los partidos de 2021 a 2025 ocurrió el ${pct1(base)} de las veces` : ''}`
         }
         className="relative mt-3 h-3 rounded-sm bg-raised"
       >
@@ -80,11 +80,11 @@ function Row({
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
-        <span>{base !== null ? `Normal histórica: ${pct1(base)}` : 'Normal histórica: …'}</span>
+        <span>{base !== null ? `Frecuencia 2021–25: ${pct1(base)}` : 'Frecuencia 2021–25: …'}</span>
         {vsNormal !== null && (
-          <span className="inline-flex items-center gap-1 font-bold text-text">
+          <span className="inline-flex items-center gap-1 text-text">
             {vsNormal >= 0 ? <ArrowUp aria-hidden className="size-3.5" /> : <ArrowDown aria-hidden className="size-3.5" />}
-            {signed1(vsNormal)} pts respecto a lo normal
+            {signed1(vsNormal)} pts
           </span>
         )}
         {vsPrev !== null && Math.abs(vsPrev) >= 0.05 && (
@@ -168,14 +168,16 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
         <>
           {!result && (
             <p className="mt-1 text-muted">
-              Elige dos equipos y calcula. Las marcas blancas ya muestran lo que ocurre normalmente en la Premier League.
+              Elige dos equipos y calcula. La marca blanca de cada barra indica con qué frecuencia ocurrió ese resultado en
+              los partidos de 2021 a 2025.
             </p>
           )}
           {result && (
             <p className="mt-1 text-muted">
               {result.odds_used
                 ? 'Calculado con las cuotas que ingresaste.'
-                : 'Sin cuotas: el mercado se estimó a partir del Elo.'}
+                : 'Sin cuotas: el mercado se estimó a partir del Elo.'}{' '}
+              La marca blanca indica con qué frecuencia ocurrió ese resultado en los partidos de 2021 a 2025.
             </p>
           )}
 
