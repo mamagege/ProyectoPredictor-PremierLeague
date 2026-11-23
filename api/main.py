@@ -18,8 +18,10 @@ from datetime import date
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, model_validator
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -75,6 +77,9 @@ class PredictResponse(BaseModel):
     home_state: TeamState
     away_state: TeamState
     h2h: Probabilities  # % histórico (local / empate / visitante)
+    home_last_match: Optional[str] = None  # último partido registrado antes de la fecha
+    away_last_match: Optional[str] = None
+    data_end: Optional[str] = None  # fecha del último partido del dataset
     mock: bool = False
 
 
@@ -92,6 +97,14 @@ class RealBackend:
 
     def teams(self):
         return self.current, self.all_teams
+
+    def _last_match(self, team: str, before: Optional[str]) -> Optional[str]:
+        h = self.p.df_history
+        mask = (h["HomeTeam"] == team) | (h["AwayTeam"] == team)
+        if before:
+            mask &= h["MatchDate"] < before
+        dates = h.loc[mask, "MatchDate"]
+        return dates.max().date().isoformat() if len(dates) else None
 
     def predict(self, req: PredictRequest) -> PredictResponse:
         p = self.p
@@ -115,6 +128,9 @@ class RealBackend:
             home_team=home,
             away_team=away,
             match_date=when,
+            home_last_match=self._last_match(home, when),
+            away_last_match=self._last_match(away, when),
+            data_end=self.p.df_history["MatchDate"].max().date().isoformat(),
             probabilities=Probabilities(**pct),
             predicted=predicted,
             odds_used=req.odds is not None,
@@ -169,6 +185,7 @@ class MockBackend:
             probabilities=Probabilities(**pct), predicted=max(pct, key=pct.get),
             odds_used=req.odds is not None, home_state=st(h), away_state=st(a),
             h2h=Probabilities(home=40, draw=25, away=35), mock=True,
+            home_last_match="2025-05-04", away_last_match="2025-05-04", data_end="2025-05-25",
         )
 
 
@@ -189,6 +206,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error(_: Request, exc: RequestValidationError):
+    """Mensajes de validación en español y con `detail` siempre como texto."""
+    fields = {str(e["loc"][-1]) for e in exc.errors()}
+    if "odds" in fields or any("cuotas" in str(e.get("msg", "")) for e in exc.errors()):
+        msg = "Las cuotas deben ser tres valores decimales (local, empate, visitante), todos mayores a 1,00."
+    elif "match_date" in fields:
+        msg = "La fecha no es válida. Usa el formato AAAA-MM-DD."
+    else:
+        msg = "Los datos enviados no son válidos. Revisa los equipos, la fecha y las cuotas."
+    return JSONResponse(status_code=422, content={"detail": msg})
 
 
 @app.get("/api/health")
