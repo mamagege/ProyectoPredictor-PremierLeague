@@ -1,7 +1,8 @@
-import { ArrowDown, ArrowUp, Info, TriangleAlert } from 'lucide-react'
+import { ArrowDown, ArrowUp, Check, Info, Scale, TriangleAlert, X } from 'lucide-react'
 import ErrorNotice from './ErrorNotice'
-import type { Outcome, PredictResponse } from '../api'
+import type { Outcome, PlayedMatch, PredictResponse } from '../api'
 import { formatDate, num0, num1, pct1, signed1 } from '../lib/format'
+import { outcomeOf, predictedRight, score } from '../lib/matches'
 import type { BaseRates } from '../lib/rates'
 import { staleWarnings } from '../lib/stale'
 
@@ -13,6 +14,8 @@ interface Props {
   baseRates: BaseRates | null
   accuracy: number | null
   testMatches: number | null
+  /** Resultado real cuando el partido elegido ya se jugó. */
+  actual?: PlayedMatch | null
   onOpenModel: () => void
   /** Presente solo cuando el error se puede reintentar (sin conexión o fallo del servidor). */
   onRetry?: (() => void) | null
@@ -113,6 +116,7 @@ export default function Forecast({
   baseRates,
   accuracy,
   testMatches,
+  actual,
   onOpenModel,
   onRetry,
 }: Props) {
@@ -176,6 +180,24 @@ export default function Forecast({
             </p>
           )}
 
+          {result && actual && (
+            <p className="mt-4 flex gap-2 text-base">
+              {predictedRight(result.predicted, actual) ? (
+                <Check aria-hidden className="mt-1 size-4 shrink-0" />
+              ) : (
+                <X aria-hidden className="mt-1 size-4 shrink-0" />
+              )}
+              <span>
+                <span className="font-bold">
+                  Resultado real: {actual.home_team} {score(actual)} {actual.away_team}.
+                </span>{' '}
+                El modelo veía como más probable «{labels[result.predicted]}» y{' '}
+                {predictedRight(result.predicted, actual) ? 'coincidió' : 'no coincidió'} con lo que pasó; a lo que ocurrió
+                le daba un {pct1(result.probabilities[outcomeOf(actual)])}.
+              </span>
+            </p>
+          )}
+
           {warnings.length > 0 && (
             <div role="status" className="mt-4 flex gap-3 rounded-md border border-draw/50 bg-draw/10 p-3 text-sm text-draw">
               <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
@@ -219,6 +241,17 @@ export default function Forecast({
               />
             ))}
           </ul>
+
+          {result?.predicted_bayesian && result.predicted_bayesian !== result.predicted && (
+            <p className="mt-5 flex gap-2 text-base">
+              <Scale aria-hidden className="mt-1 size-4 shrink-0 text-ink-muted" />
+              <span>
+                Con los umbrales bayesianos del modelo, pensados para detectar más empates, el pronóstico sería{' '}
+                <span className="font-bold">«{labels[result.predicted_bayesian]}»</span>, aunque «{labels[result.predicted]}»
+                sigue siendo el resultado con mayor probabilidad.
+              </span>
+            </p>
+          )}
 
           <div className="mt-6 flex gap-3 border-t border-line pt-4 text-base text-ink-muted">
             <Info aria-hidden className="mt-0.5 size-4 shrink-0" />

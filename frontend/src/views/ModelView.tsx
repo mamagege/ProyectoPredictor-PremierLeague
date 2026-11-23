@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react'
+import Calibration from '../components/Calibration'
 import ErrorNotice from '../components/ErrorNotice'
 import { deployedResult, testSize, type MetricsResponse, type ModelResult } from '../api'
 import { num0, num2, pct1 } from '../lib/format'
@@ -226,6 +227,7 @@ export default function ModelView({
             <Confusion m={metrics} />
             <Method m={metrics} />
           </div>
+          {metrics.calibration && <Calibration c={metrics.calibration} />}
         </>
       )}
     </div>

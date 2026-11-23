@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { api, type MetricsResponse, type TeamsResponse } from './api'
+import { api, type MatchDay, type MetricsResponse, type TeamsResponse } from './api'
 import PredictorView from './views/PredictorView'
 import ModelView from './views/ModelView'
 import PrivacyView from './views/PrivacyView'
@@ -30,6 +30,7 @@ export default function App() {
   const [tab, setTab] = useState<Tab>(tabFromHash)
   const [teams, setTeams] = useState<TeamsResponse | null>(null)
   const [teamsError, setTeamsError] = useState<string | null>(null)
+  const [dates, setDates] = useState<MatchDay[] | null>(null)
   const [metrics, setMetrics] = useState<MetricsResponse | null>(null)
   const [metricsError, setMetricsError] = useState<string | null>(null)
 
@@ -59,16 +60,21 @@ export default function App() {
     [],
   )
 
+  // Fechas con partidos para el selector; si fallan, el selector queda solo con «Datos más recientes».
+  const fetchDates = useCallback(() => api.dates().then(setDates).catch(() => setDates(null)), [])
+
   // Carga inicial: sincroniza con la API externa.
   useEffect(() => {
     fetchTeams()
+    fetchDates()
     fetchMetrics()
-  }, [fetchTeams, fetchMetrics])
+  }, [fetchTeams, fetchDates, fetchMetrics])
 
   // Reintentos iniciados por la persona: limpian el error y vuelven a pedir.
   const retryTeams = () => {
     setTeamsError(null)
     fetchTeams()
+    fetchDates()
   }
   const retryMetrics = () => {
     setMetricsError(null)
@@ -120,6 +126,7 @@ export default function App() {
         {tab === 'predictor' ? (
           <PredictorView
             teams={teams}
+            dates={dates}
             teamsError={teamsError}
             metrics={metrics}
             onOpenModel={() => go('modelo')}

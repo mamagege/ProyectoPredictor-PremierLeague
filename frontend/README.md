@@ -30,20 +30,24 @@ src/
 ├── api.ts                 # Tipos del contrato con la API y cliente fetch
 ├── App.tsx                # Navegación por #hash entre Predictor, Modelo y Privacidad
 ├── views/
-│   ├── PredictorView.tsx  # Formulario + pronóstico + condiciones previas
+│   ├── PredictorView.tsx  # Formulario + pronóstico + condiciones previas + partidos
 │   ├── ModelView.tsx      # Benchmark, matriz de confusión y metodología
 │   └── PrivacyView.tsx    # Qué hace la aplicación con los datos
 ├── components/
-│   ├── MatchForm.tsx      # Equipos, fecha y cuotas con validación
+│   ├── MatchForm.tsx      # Equipos, fecha (selector de fechas disponibles) y cuotas
+│   ├── MatchesPanel.tsx   # Próximos partidos (calendario opcional) y partidos jugados
+│   ├── Calibration.tsx    # Diagrama de confiabilidad, ECE y umbrales bayesianos
 │   ├── Forecast.tsx       # Las tres probabilidades frente a su frecuencia en 2021–25
 │   ├── Conditions.tsx     # Estado de cada equipo e historial directo
 │   ├── ErrorNotice.tsx    # Aviso de error con causa y botón «Reintentar»
-│   └── Intro.tsx          # Animación de entrada (solo en la primera visita)
+│   └── Intro.tsx          # Animación de entrada (en cada carga de la página)
 └── lib/                   # Funciones puras, sin React
     ├── format.ts          # Números y fechas en español (es-CO)
     ├── rates.ts           # Frecuencia de cada resultado a partir de la matriz de confusión
     ├── stale.ts           # Aviso cuando el último partido de un equipo es muy antiguo
     ├── compare.ts         # Qué equipo va mejor en cada indicador
+    ├── matches.ts         # Resultado real y marcador de un partido jugado
+    ├── useFetch.ts        # Carga de datos con estado de carga, error y reintento
     ├── bezier.ts          # Curvas cubic-bezier de la intro
     └── lib.test.ts        # Pruebas de todo lo anterior (Vitest)
 ```

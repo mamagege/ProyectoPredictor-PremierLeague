@@ -85,6 +85,7 @@ class PredictResponse(BaseModel):
     match_date: Optional[str]
     probabilities: Probabilities  # en porcentaje, suman 100
     predicted: str  # "home" | "draw" | "away"
+    predicted_bayesian: Optional[str] = None  # pronóstico discreto con umbrales bayesianos (detecta más empates)
     odds_used: bool
     home_state: TeamState
     away_state: TeamState
@@ -148,6 +149,7 @@ class RealBackend:
             data_end=self.p.last_history_date.date().isoformat(),
             probabilities=Probabilities(**pct),
             predicted=predicted,
+            predicted_bayesian=_outcome_from_label(res.get("pronostico_bayesiano")),
             odds_used=req.odds is not None,
             home_state=h_stats,
             away_state=a_stats,
@@ -156,6 +158,38 @@ class RealBackend:
             warnings=list(res.get("warnings", [])),
             model_version=res.get("model_version"),
         )
+
+
+def _outcome_from_label(label: Optional[str]) -> Optional[str]:
+    """«Victoria de X (Local)» / «Empate» / «Victoria de Y (Visitante)» -> home | draw | away."""
+    if not label:
+        return None
+    if label == "Empate":
+        return "draw"
+    if label.endswith("(Local)"):
+        return "home"
+    if label.endswith("(Visitante)"):
+        return "away"
+    return None
+
+
+def _calibration_summary(summary: dict, deployed: Optional[str]) -> Optional[dict]:
+    """Calibración del modelo desplegado: temperatura, umbrales bayesianos, ECE y curvas de confiabilidad."""
+    cal = summary.get("calibration") or {}
+    row = next((r for r in summary.get("test_results", []) if r.get("model") == deployed), None) or {}
+    bins = row.get("calibration_bins") or {}
+    if not cal and not bins:
+        return None
+    tuning = cal.get("bayesian_tuning_val") or {}
+    keep = ("val_base_accuracy", "val_tuned_accuracy", "val_base_f1_D", "val_tuned_f1_D")
+    return {
+        "temperature": cal.get("temperature"),
+        "bayesian_weights": cal.get("bayesian_weights"),
+        "bayesian_tuning_val": {k: tuning[k] for k in keep if k in tuning} or None,
+        "top_label_ece": bins.get("top_label_ece"),
+        "classwise_ece": bins.get("classwise_ece"),
+        "classwise_bins": bins.get("classwise_bins"),
+    }
 
 
 def _latest_full_season(history) -> tuple[str, list[str]]:
@@ -288,6 +322,7 @@ def predict(req: PredictRequest):
 _METRIC_KEYS = (
     "model", "n_samples", "accuracy", "balanced_accuracy", "macro_f1",
     "f1_H", "f1_D", "f1_A", "draws_predicted", "log_loss", "brier_score",
+    "top_label_ece", "mean_classwise_ece",
 )
 
 
@@ -329,6 +364,7 @@ def metrics():
         "val_seasons": splits.get("val_seasons"),
         "test_seasons": splits.get("test_seasons"),
         "temperature": cal.get("temperature"),
+        "calibration": _calibration_summary(s, _deployed_row(s)),
         "test_results": _slim_rows(s.get("test_results", [])),
         "prospective_results": _slim_rows(s.get("prospective_2025_26_results", [])),
         "confusion_matrix": s.get("confusion_matrix"),

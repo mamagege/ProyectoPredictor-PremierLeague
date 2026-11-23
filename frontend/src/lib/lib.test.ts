@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { bezier } from './bezier'
+import { pointRadius, reliabilityPoints } from './calibration'
 import { leader } from './compare'
 import { outcomeOf, predictedRight, score } from './matches'
 import { formatDate, num1, pct1, signed1 } from './format'
@@ -120,5 +121,32 @@ describe('partidos jugados', () => {
   it('escribe el marcador con guion largo', () => {
     expect(score({ home_goals: 2, away_goals: 1 })).toBe('2–1')
     expect(score({ home_goals: 0, away_goals: 0 })).toBe('0–0')
+  })
+})
+
+describe('curvas de calibración', () => {
+  const bin = (low: number, count: number, pred: number, obs: number) => ({
+    bin_low: low,
+    bin_high: low + 0.1,
+    count,
+    mean_predicted_prob: pred,
+    empirical_frequency: obs,
+    gap: Math.abs(pred - obs),
+  })
+  it('descarta los tramos sin partidos y ordena por probabilidad', () => {
+    const pts = reliabilityPoints([bin(0.5, 10, 0.55, 0.5), bin(0, 0, 0, 0), bin(0.1, 4, 0.12, 0.25)])
+    expect(pts.map((p) => p.x)).toEqual([0.12, 0.55])
+    expect(pts[0]).toEqual({ x: 0.12, y: 0.25, count: 4 })
+  })
+  it('acepta datos ausentes', () => {
+    expect(reliabilityPoints(null)).toEqual([])
+    expect(reliabilityPoints(undefined)).toEqual([])
+  })
+  it('el radio crece con los partidos y respeta los límites', () => {
+    expect(pointRadius(0, 100)).toBe(3)
+    expect(pointRadius(100, 100)).toBe(8)
+    expect(pointRadius(25, 100)).toBeCloseTo(5.5, 5)
+    expect(pointRadius(500, 100)).toBe(8)
+    expect(pointRadius(5, 0)).toBe(3)
   })
 })

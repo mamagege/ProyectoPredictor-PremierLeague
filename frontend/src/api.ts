@@ -31,6 +31,7 @@ export interface PredictResponse {
   match_date: string | null
   probabilities: Probabilities // porcentajes, suman 100
   predicted: Outcome
+  predicted_bayesian: Outcome | null // pronóstico discreto con umbrales bayesianos (detecta más empates)
   odds_used: boolean
   home_state: TeamState
   away_state: TeamState
@@ -58,6 +59,33 @@ export interface ModelResult {
   brier_score: number
   f1_D: number
   draws_predicted?: number
+  top_label_ece?: number
+}
+
+export interface CalibrationBin {
+  bin_low: number
+  bin_high: number
+  count: number
+  mean_predicted_prob: number
+  empirical_frequency: number
+  gap: number
+}
+
+type ByClass<T> = Record<'H' | 'D' | 'A', T>
+
+/** Calibración del modelo desplegado (temperatura, umbrales bayesianos y curvas de confiabilidad). */
+export interface Calibration {
+  temperature: number | null
+  bayesian_weights: number[] | null
+  bayesian_tuning_val: {
+    val_base_accuracy?: number
+    val_tuned_accuracy?: number
+    val_base_f1_D?: number
+    val_tuned_f1_D?: number
+  } | null
+  top_label_ece: number | null
+  classwise_ece: ByClass<number> | null
+  classwise_bins: ByClass<CalibrationBin[]> | null
 }
 
 export interface MetricsResponse {
@@ -71,6 +99,7 @@ export interface MetricsResponse {
   val_seasons: string[] | null
   test_seasons: string[] | null
   temperature: number | null
+  calibration: Calibration | null
   test_results: ModelResult[]
   prospective_results: ModelResult[]
   confusion_matrix: number[][]
@@ -145,6 +174,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiRequestError('No hay conexión con el servicio de predicción.', 0)
   }
   const body = await res.json().catch(() => null)
+  // Una respuesta 200 que no es JSON (por ejemplo, una página HTML) significa que /api no llegó a la API.
+  if (res.ok && body === null) {
+    throw new ApiRequestError('El servicio de predicción devolvió una respuesta inesperada.', 502)
+  }
   if (!res.ok) {
     if (typeof body?.detail === 'string') throw new ApiRequestError(body.detail, res.status)
     throw new ApiRequestError(
