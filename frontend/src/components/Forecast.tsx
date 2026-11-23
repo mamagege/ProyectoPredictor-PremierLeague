@@ -135,6 +135,11 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
       aria-busy={busy}
       className={`rounded-lg border border-line bg-panel p-5 transition-opacity sm:p-6 ${busy ? 'opacity-60' : ''}`}
     >
+      {result && !busy && (
+        <p role="status" aria-live="polite" className="sr-only">
+          {`Pronóstico ${result.home_team} contra ${result.away_team}: victoria de ${result.home_team} ${pct1(result.probabilities.home)}, empate ${pct1(result.probabilities.draw)}, victoria de ${result.away_team} ${pct1(result.probabilities.away)}.`}
+        </p>
+      )}
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h2 id="forecast-title" className="font-display text-2xl font-bold leading-tight">
           {result ? `${result.home_team} – ${result.away_team}` : 'Pronóstico del partido'}
