@@ -119,7 +119,7 @@ export default function MatchForm({ teams, offline, busy, onSubmit }: Props) {
             type="button"
             onClick={swap}
             aria-label="Intercambiar local y visitante"
-            className="grid size-9 place-items-center rounded-full border border-line bg-raised text-ink-muted hover:border-ink-muted hover:text-ink"
+            className="grid size-11 place-items-center rounded-full border border-line bg-raised text-ink-muted hover:border-ink-muted hover:text-ink"
           >
             <ArrowLeftRight aria-hidden className="size-4 rotate-90" />
           </button>
@@ -136,12 +136,12 @@ export default function MatchForm({ teams, offline, busy, onSubmit }: Props) {
           </p>
         </div>
 
-        <details className="group rounded-md border border-line">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-sm font-bold text-ink-muted hover:text-ink">
+        <details className="group border-t border-line">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 pt-1 text-sm font-bold text-ink-muted hover:text-ink">
             Cuotas de mercado (opcional)
             <ChevronDown aria-hidden className="size-4 transition-transform group-open:rotate-180" />
           </summary>
-          <div className="border-t border-line p-3">
+          <div className="pb-1 pt-2">
             <div className="grid grid-cols-3 gap-2">
               {oddsLabels.map((l, i) => (
                 <div key={l}>
