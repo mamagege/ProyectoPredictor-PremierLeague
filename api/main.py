@@ -29,6 +29,8 @@ ROOT = Path(__file__).resolve().parent.parent
 FRONTEND_DIST = ROOT / "frontend" / "dist"
 sys.path.insert(0, str(ROOT))
 
+from api.matches import make_router  # noqa: E402
+
 MOCK = os.getenv("EPL_MOCK", "0") == "1"
 _DEFAULT_CORS_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173"
 
@@ -250,6 +252,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(make_router(lambda: state["backend"]))
 
 
 @app.exception_handler(RequestValidationError)
