@@ -14,7 +14,7 @@ export const signed1 = (n: number) => `${n > 0 ? '+' : n < 0 ? '−' : ''}${f1.f
 export function formatDate(iso: string | null): string {
   if (!iso) return ''
   const [y, m, d] = iso.split('-').map(Number)
-  return new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'short', year: 'numeric' })
-    .format(new Date(y, m - 1, d))
-    .replace('.', '')
+  return new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }).format(
+    new Date(y, m - 1, d),
+  )
 }

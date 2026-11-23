@@ -97,7 +97,28 @@ function Row({
   )
 }
 
+const STALE_DAYS = 400
+
+/** Avisos cuando el estado de un equipo viene de datos muy viejos respecto a la fecha del pronóstico. */
+function staleWarnings(r: PredictResponse): string[] {
+  const ref = new Date(r.match_date ?? r.data_end ?? '')
+  if (Number.isNaN(ref.getTime())) return []
+  const out: string[] = []
+  for (const [team, last] of [
+    [r.home_team, r.home_last_match],
+    [r.away_team, r.away_last_match],
+  ] as const) {
+    if (!last) continue
+    const days = (ref.getTime() - new Date(last).getTime()) / 86_400_000
+    if (days > STALE_DAYS) {
+      out.push(`${team} no tiene partidos registrados desde ${formatDate(last)}: su estado viene de datos de esa época.`)
+    }
+  }
+  return out
+}
+
 export default function Forecast({ result, previous, busy, error, baseRates, accuracy, onOpenModel }: Props) {
+  const warnings = result ? staleWarnings(result) : []
   const samePair =
     result && previous && previous.home_team === result.home_team && previous.away_team === result.away_team
   const prev = samePair ? previous : null
@@ -131,6 +152,11 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
           <div>
             <p className="font-bold">No se pudo calcular el pronóstico</p>
             <p className="mt-1 text-sm">{error}</p>
+            {error.startsWith('Historial insuficiente') && (
+              <p className="mt-2 text-sm text-text">
+                Prueba con una fecha posterior (los datos empiezan en agosto de 2000) o deja la fecha vacía.
+              </p>
+            )}
           </div>
         </div>
       ) : (
@@ -146,6 +172,18 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
                 ? 'Calculado con las cuotas que ingresaste.'
                 : 'Sin cuotas: el mercado se estimó a partir del Elo.'}
             </p>
+          )}
+
+          {warnings.length > 0 && (
+            <div role="status" className="mt-4 flex gap-3 rounded-md border border-draw/50 bg-draw/10 p-3 text-sm text-draw">
+              <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
+              <div>
+                {warnings.map((w) => (
+                  <p key={w}>{w}</p>
+                ))}
+                <p className="mt-1 text-text">Tómalo como una estimación poco fiable.</p>
+              </div>
+            </div>
           )}
 
           <ul key={result ? `${result.home_team}-${result.away_team}-${result.probabilities.home}` : 'empty'} className="mt-6 divide-y divide-line">
