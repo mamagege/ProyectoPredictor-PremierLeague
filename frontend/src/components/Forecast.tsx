@@ -128,7 +128,7 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
         </p>
       )}
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 id="forecast-title" className="font-display text-2xl font-bold leading-tight">
+        <h2 id="forecast-title" className="text-balance font-display text-2xl font-bold leading-tight">
           {result ? `${result.home_team} – ${result.away_team}` : 'Pronóstico del partido'}
         </h2>
         {result && (
@@ -209,7 +209,7 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
             ))}
           </ul>
 
-          <div className="mt-6 flex gap-3 border-t border-line pt-4 text-sm text-ink-muted">
+          <div className="mt-6 flex gap-3 border-t border-line pt-4 text-base text-ink-muted">
             <Info aria-hidden className="mt-0.5 size-4 shrink-0" />
             <p>
               Son tres probabilidades que suman 100 %, no un veredicto.

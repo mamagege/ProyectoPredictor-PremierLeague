@@ -63,7 +63,7 @@ function Benchmark({ m }: { m: MetricsResponse }) {
           </tbody>
         </table>
       </div>
-      <p className="mt-4 text-sm text-ink-muted">
+      <p className="mt-4 text-base text-ink-muted">
         Las diferencias entre los modelos entrenados son pequeñas. Todos mejoran claramente al modelo ingenuo que siempre
         predice victoria local. Esta aplicación usa la red neuronal profunda porque es el componente central del proyecto
         del curso; la regresión logística la supera por poco en exactitud y log loss.
@@ -115,7 +115,7 @@ function Confusion({ m }: { m: MetricsResponse }) {
           </tbody>
         </table>
       </div>
-      <p className="mt-4 text-sm text-ink-muted">
+      <p className="mt-4 text-base text-ink-muted">
         Las celdas con borde blanco, en la diagonal, son aciertos; cuanto más claro el fondo, mayor la proporción de esa fila.
         Los empates son difíciles de anticipar: el modelo nunca marcó el empate como lo más probable (columna del medio en
         cero), por eso conviene leer siempre las tres probabilidades y no solo el resultado destacado.

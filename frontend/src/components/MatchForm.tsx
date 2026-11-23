@@ -131,7 +131,7 @@ export default function MatchForm({ teams, offline, busy, onSubmit }: Props) {
             Fecha del partido
           </label>
           <input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputBase} />
-          <p className="mt-1.5 text-sm text-ink-muted">
+          <p className="mt-1.5 text-base text-ink-muted">
             Con fecha, el modelo usa solo lo ocurrido antes. Sin fecha, usa los datos más recientes (hasta mayo de 2025).
           </p>
         </div>
@@ -159,7 +159,7 @@ export default function MatchForm({ teams, offline, busy, onSubmit }: Props) {
                 </div>
               ))}
             </div>
-            <p className="mt-2 text-sm text-ink-muted">
+            <p className="mt-2 text-base text-ink-muted">
               Cuotas decimales previas al partido. Son un dato de entrada para el modelo, no una recomendación. Sin
               cuotas, el mercado se estima a partir del Elo.
             </p>
