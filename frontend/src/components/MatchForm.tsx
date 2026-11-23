@@ -1,12 +1,22 @@
 import { useState } from 'react'
 import { ArrowLeftRight, ChevronDown, Loader2 } from 'lucide-react'
-import type { PredictRequest, TeamsResponse } from '../api'
+import type { MatchDay, PredictRequest, TeamsResponse } from '../api'
 import { formatDate } from '../lib/format'
 
-interface Props {
+export interface MatchFields {
+  home: string
+  away: string
+  /** Fecha AAAA-MM-DD; vacía = datos más recientes. */
+  date: string
+}
+
+interface Props extends MatchFields {
   teams: TeamsResponse | null
+  /** Fechas con partidos en el historial; null mientras cargan o si la API no responde. */
+  dates: MatchDay[] | null
   offline: boolean
   busy: boolean
+  onChange: (patch: Partial<MatchFields>) => void
   onSubmit: (req: PredictRequest) => void
 }
 
@@ -73,10 +83,7 @@ function TeamSelect({
 
 const toNumber = (s: string) => Number(s.trim().replace(',', '.'))
 
-export default function MatchForm({ teams, offline, busy, onSubmit }: Props) {
-  const [home, setHome] = useState('Arsenal')
-  const [away, setAway] = useState('Chelsea')
-  const [date, setDate] = useState('')
+export default function MatchForm({ home, away, date, dates, teams, offline, busy, onChange, onSubmit }: Props) {
   const [odds, setOdds] = useState(['', '', ''])
   const [error, setError] = useState<string | null>(null)
 
@@ -101,8 +108,7 @@ export default function MatchForm({ teams, offline, busy, onSubmit }: Props) {
   }
 
   const swap = () => {
-    setHome(away)
-    setAway(home)
+    onChange({ home: away, away: home })
     setError(null)
   }
 
@@ -114,7 +120,7 @@ export default function MatchForm({ teams, offline, busy, onSubmit }: Props) {
       <p className="mt-1 text-sm text-ink-muted">Elige los dos equipos. Lo demás es opcional.</p>
 
       <div className="mt-5 grid gap-4">
-        <TeamSelect id="home" label="Local" value={home} onChange={setHome} teams={teams} offline={offline} tone="var(--color-local)" />
+        <TeamSelect id="home" label="Local" value={home} onChange={(v) => onChange({ home: v })} teams={teams} offline={offline} tone="var(--color-local)" />
         <div className="-my-1 flex justify-center">
           <button
             type="button"
@@ -125,15 +131,35 @@ export default function MatchForm({ teams, offline, busy, onSubmit }: Props) {
             <ArrowLeftRight aria-hidden className="size-4 rotate-90" />
           </button>
         </div>
-        <TeamSelect id="away" label="Visitante" value={away} onChange={setAway} teams={teams} offline={offline} tone="var(--color-away)" />
+        <TeamSelect id="away" label="Visitante" value={away} onChange={(v) => onChange({ away: v })} teams={teams} offline={offline} tone="var(--color-away)" />
 
         <div>
           <label htmlFor="date" className="mb-1.5 block text-sm font-bold text-ink-muted">
             Fecha del partido
           </label>
-          <input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputBase} />
+          <div className="relative">
+            <select
+              id="date"
+              value={date}
+              onChange={(e) => onChange({ date: e.target.value })}
+              className={`${inputBase} appearance-none pr-10`}
+            >
+              <option value="">Datos más recientes</option>
+              {/* Una fecha elegida desde el calendario puede no estar en el historial: se conserva en la lista. */}
+              {date && !dates?.some((d) => d.date === date) && <option value={date}>{formatDate(date)}</option>}
+              {dates?.map((d) => (
+                <option key={d.date} value={d.date}>
+                  {formatDate(d.date)} · {d.matches} {d.matches === 1 ? 'partido' : 'partidos'}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              aria-hidden
+              className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted"
+            />
+          </div>
           <p className="mt-1.5 text-base text-ink-muted">
-            Con fecha, el modelo usa solo lo ocurrido antes. Sin fecha, usa los datos más recientes
+            Elige una fecha con partidos: el modelo usa solo lo ocurrido antes. Sin fecha, usa los datos más recientes
             {teams?.data_end ? ` (hasta el ${formatDate(teams.data_end)})` : ''}.
           </p>
         </div>
