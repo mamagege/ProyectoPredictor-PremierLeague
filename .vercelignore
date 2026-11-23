@@ -1,0 +1,10 @@
+.venv/
+tests/
+notebooks/
+docs/
+models/hito2/
+datasets/English Premier League Match Data (2000-2025)/
+frontend/node_modules/
+frontend/dist/
+.impeccable/
+frontend/.impeccable/

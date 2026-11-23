@@ -226,3 +226,5 @@ frontend/dist/
 
 # Modelo del Hito 2 regenerado por el notebook (no es el de producción)
 models/hito2/
+.vercel
+.env*
