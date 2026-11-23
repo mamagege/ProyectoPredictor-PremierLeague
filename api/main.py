@@ -22,12 +22,22 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, model_validator
 
 ROOT = Path(__file__).resolve().parent.parent
+FRONTEND_DIST = ROOT / "frontend" / "dist"
 sys.path.insert(0, str(ROOT))
 
 MOCK = os.getenv("EPL_MOCK", "0") == "1"
+_DEFAULT_CORS_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173"
+
+
+def _parse_cors_origins() -> list[str]:
+    raw = os.getenv("CORS_ALLOW_ORIGINS", _DEFAULT_CORS_ORIGINS).strip() or _DEFAULT_CORS_ORIGINS
+    if raw == "*":
+        return ["*"]
+    return [origin.strip() for origin in raw.split(",") if origin.strip()]
 
 # Temporada que usa el modo simulado. En modo real se toma la temporada más reciente del historial.
 MOCK_SEASON = "2024/25"
@@ -236,7 +246,7 @@ async def lifespan(_: FastAPI):
 app = FastAPI(title="Predictor EPL API", version="0.1.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=_parse_cors_origins(),
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -321,3 +331,7 @@ def metrics():
         "confusion_matrix": s.get("confusion_matrix"),
         "confusion_matrix_norm": s.get("confusion_matrix_norm"),
     }
+
+
+if FRONTEND_DIST.is_dir():
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIST), html=True), name="frontend")
