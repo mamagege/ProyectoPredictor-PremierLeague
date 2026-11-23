@@ -8,9 +8,9 @@ Sistema que estima, antes de que empiece un partido de la English Premier League
 
 | Entrega | Material |
 |---|---|
-| Hito 2 — video | https://youtu.be/vJ2x2CfAMa4 |
+| Hito 2 — video | [Video del Hito 2](https://youtu.be/vJ2x2CfAMa4) |
 | Hito 2 — documento | [`docs/Hito2Proyecto.pdf`](docs/Hito2Proyecto.pdf) |
-| Hito 3 — video (máx. 10 min) | _pendiente_ |
+| Hito 3 — video de sustentación | [Video de sustentación del Hito 3 (PTIA)](https://www.youtube.com/watch?v=n6CiU09yKRM) |
 | Hito 3 — documento | _pendiente_ |
 
 ---
