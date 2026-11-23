@@ -64,7 +64,8 @@ function Benchmark({ m }: { m: MetricsResponse }) {
       </div>
       <p className="mt-4 text-sm text-muted">
         Las diferencias entre los modelos entrenados son pequeñas. Todos mejoran claramente al modelo ingenuo que siempre
-        predice victoria local.
+        predice victoria local. Esta aplicación usa la red neuronal profunda porque es el componente central del proyecto
+        del curso; la regresión logística la supera por poco en exactitud y log loss.
       </p>
     </section>
   )
