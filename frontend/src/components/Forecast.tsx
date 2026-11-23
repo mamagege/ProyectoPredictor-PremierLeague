@@ -1,7 +1,8 @@
-import { ArrowDown, ArrowUp, Info, TriangleAlert } from 'lucide-react'
+import { ArrowDown, ArrowUp, Check, Info, TriangleAlert, X } from 'lucide-react'
 import ErrorNotice from './ErrorNotice'
-import type { Outcome, PredictResponse } from '../api'
+import type { Outcome, PlayedMatch, PredictResponse } from '../api'
 import { formatDate, num0, num1, pct1, signed1 } from '../lib/format'
+import { outcomeOf, predictedRight, score } from '../lib/matches'
 import type { BaseRates } from '../lib/rates'
 import { staleWarnings } from '../lib/stale'
 
@@ -13,6 +14,8 @@ interface Props {
   baseRates: BaseRates | null
   accuracy: number | null
   testMatches: number | null
+  /** Resultado real cuando el partido elegido ya se jugó. */
+  actual?: PlayedMatch | null
   onOpenModel: () => void
   /** Presente solo cuando el error se puede reintentar (sin conexión o fallo del servidor). */
   onRetry?: (() => void) | null
@@ -113,6 +116,7 @@ export default function Forecast({
   baseRates,
   accuracy,
   testMatches,
+  actual,
   onOpenModel,
   onRetry,
 }: Props) {
@@ -173,6 +177,24 @@ export default function Forecast({
                 ? 'Calculado con las cuotas que ingresaste.'
                 : 'Sin cuotas: el mercado se estimó a partir del Elo.'}{' '}
               La marca blanca indica con qué frecuencia ocurrió ese resultado en los partidos de 2021 a 2025.
+            </p>
+          )}
+
+          {result && actual && (
+            <p className="mt-4 flex gap-2 text-base">
+              {predictedRight(result.predicted, actual) ? (
+                <Check aria-hidden className="mt-1 size-4 shrink-0" />
+              ) : (
+                <X aria-hidden className="mt-1 size-4 shrink-0" />
+              )}
+              <span>
+                <span className="font-bold">
+                  Resultado real: {actual.home_team} {score(actual)} {actual.away_team}.
+                </span>{' '}
+                El modelo veía como más probable «{labels[result.predicted]}» y{' '}
+                {predictedRight(result.predicted, actual) ? 'coincidió' : 'no coincidió'} con lo que pasó; a lo que ocurrió
+                le daba un {pct1(result.probabilities[outcomeOf(actual)])}.
+              </span>
             </p>
           )}
 
