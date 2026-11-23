@@ -4,6 +4,7 @@ import type { PredictRequest, TeamsResponse } from '../api'
 
 interface Props {
   teams: TeamsResponse | null
+  offline: boolean
   busy: boolean
   onSubmit: (req: PredictRequest) => void
 }
@@ -18,6 +19,7 @@ function TeamSelect({
   value,
   onChange,
   teams,
+  offline,
   tone,
 }: {
   id: string
@@ -25,6 +27,7 @@ function TeamSelect({
   value: string
   onChange: (v: string) => void
   teams: TeamsResponse | null
+  offline: boolean
   tone: string
 }) {
   const others = teams ? teams.all.filter((t) => !teams.current.includes(t)) : []
@@ -42,7 +45,7 @@ function TeamSelect({
           disabled={!teams}
           className={`${inputBase} appearance-none pr-10`}
         >
-          {!teams && <option>Cargando equipos…</option>}
+          {!teams && <option>{offline ? 'Equipos no disponibles' : 'Cargando equipos…'}</option>}
           {teams && (
             <>
               <optgroup label={`Temporada ${teams.season}`}>
@@ -69,7 +72,7 @@ function TeamSelect({
 
 const toNumber = (s: string) => Number(s.trim().replace(',', '.'))
 
-export default function MatchForm({ teams, busy, onSubmit }: Props) {
+export default function MatchForm({ teams, offline, busy, onSubmit }: Props) {
   const [home, setHome] = useState('Arsenal')
   const [away, setAway] = useState('Chelsea')
   const [date, setDate] = useState('')
@@ -110,7 +113,7 @@ export default function MatchForm({ teams, busy, onSubmit }: Props) {
       <p className="mt-1 text-sm text-muted">Elige los dos equipos. Lo demás es opcional.</p>
 
       <div className="mt-5 grid gap-4">
-        <TeamSelect id="home" label="Local" value={home} onChange={setHome} teams={teams} tone="var(--color-local)" />
+        <TeamSelect id="home" label="Local" value={home} onChange={setHome} teams={teams} offline={offline} tone="var(--color-local)" />
         <div className="-my-1 flex justify-center">
           <button
             type="button"
@@ -121,7 +124,7 @@ export default function MatchForm({ teams, busy, onSubmit }: Props) {
             <ArrowLeftRight aria-hidden className="size-4 rotate-90" />
           </button>
         </div>
-        <TeamSelect id="away" label="Visitante" value={away} onChange={setAway} teams={teams} tone="var(--color-away)" />
+        <TeamSelect id="away" label="Visitante" value={away} onChange={setAway} teams={teams} offline={offline} tone="var(--color-away)" />
 
         <div>
           <label htmlFor="date" className="mb-1.5 block text-sm font-bold text-muted">

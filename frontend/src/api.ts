@@ -35,6 +35,9 @@ export interface PredictResponse {
   home_state: TeamState
   away_state: TeamState
   h2h: Probabilities
+  home_last_match: string | null
+  away_last_match: string | null
+  data_end: string | null
   mock: boolean
 }
 
@@ -61,14 +64,18 @@ export interface MetricsResponse {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, {
-    headers: { 'Content-Type': 'application/json' },
-    ...init,
-  })
-  const body = await res.json().catch(() => ({}))
+  let res: Response
+  try {
+    res = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...init })
+  } catch {
+    throw new Error('No hay conexión con el servicio de predicción.')
+  }
+  const body = await res.json().catch(() => null)
   if (!res.ok) {
-    const detail = typeof body.detail === 'string' ? body.detail : 'Error inesperado del servidor'
-    throw new Error(detail)
+    if (typeof body?.detail === 'string') throw new Error(body.detail)
+    throw new Error(
+      res.status >= 500 ? 'El servicio de predicción no responde.' : 'No se pudo procesar la solicitud. Inténtalo de nuevo.',
+    )
   }
   return body as T
 }

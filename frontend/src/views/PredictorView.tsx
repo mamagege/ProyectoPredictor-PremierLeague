@@ -46,11 +46,11 @@ export default function PredictorView({ teams, teamsError, metrics, onOpenModel 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
       <div className="lg:sticky lg:top-5">
-        <MatchForm teams={teams} busy={busy} onSubmit={submit} />
+        <MatchForm teams={teams} offline={teamsError !== null} busy={busy} onSubmit={submit} />
         {teamsError && (
           <p role="alert" className="mt-4 rounded-md border border-danger/50 bg-danger/10 px-3 py-2 text-sm text-danger">
-            No se pudo conectar con el servicio de predicción ({teamsError}). Inicia la API con{' '}
-            <code className="font-bold">uvicorn api.main:app --port 8000</code>.
+            {teamsError} Inicia la API desde la raíz del repositorio con{' '}
+            <code className="font-bold">uvicorn api.main:app --port 8000</code> y recarga la página.
           </p>
         )}
       </div>
