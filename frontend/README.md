@@ -1,32 +1,41 @@
-# React + TypeScript + Vite
+# Interfaz web del Predictor EPL
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Aplicación de una sola página (Vite + React + TypeScript + Tailwind) que consume la API de `api/main.py`. Contexto de producto en [`../PRODUCT.md`](../PRODUCT.md) y sistema de diseño en [`../DESIGN.md`](../DESIGN.md).
 
-Currently, two official plugins are available:
+## Desarrollo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Desde la raíz del repositorio, con la API levantada en el puerto 8000 (`python -m uvicorn api.main:app --port 8000`):
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm --prefix frontend ci
+npm --prefix frontend run dev      # http://localhost:5173
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Vite reenvía las peticiones `/api/*` a `http://127.0.0.1:8000` (ver `vite.config.ts`).
+
+## Scripts
+
+| Comando | Qué hace |
+|---|---|
+| `npm run dev` | Servidor de desarrollo con recarga en caliente |
+| `npm run build` | Revisión de tipos (`tsc -b`) y compilación de producción en `dist/` |
+| `npm run lint` | Linter (oxlint) |
+| `npm run preview` | Sirve la compilación de `dist/` |
+
+## Estructura
+
+```text
+src/
+├── api.ts                 # Tipos del contrato con la API y cliente fetch
+├── App.tsx                # Navegación entre las pantallas Predictor y Modelo
+├── views/
+│   ├── PredictorView.tsx  # Formulario + pronóstico + condiciones previas
+│   └── ModelView.tsx      # Benchmark, matriz de confusión y metodología
+├── components/
+│   ├── MatchForm.tsx      # Equipos, fecha y cuotas con validación
+│   ├── Forecast.tsx       # Las tres probabilidades frente a la frecuencia histórica
+│   └── Conditions.tsx     # Estado de cada equipo e historial directo
+└── lib/format.ts          # Formato de números y fechas en español
+```
+
+Las cifras del modelo (exactitud, partidos de prueba, variables, calibración) se leen de `/api/metrics`; no hay valores fijos en la interfaz.
