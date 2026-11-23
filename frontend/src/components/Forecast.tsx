@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, Check, Info, TriangleAlert, X } from 'lucide-react'
+import { ArrowDown, ArrowUp, Check, Info, Scale, TriangleAlert, X } from 'lucide-react'
 import ErrorNotice from './ErrorNotice'
 import type { Outcome, PlayedMatch, PredictResponse } from '../api'
 import { formatDate, num0, num1, pct1, signed1 } from '../lib/format'
@@ -241,6 +241,17 @@ export default function Forecast({
               />
             ))}
           </ul>
+
+          {result?.predicted_bayesian && result.predicted_bayesian !== result.predicted && (
+            <p className="mt-5 flex gap-2 text-base">
+              <Scale aria-hidden className="mt-1 size-4 shrink-0 text-ink-muted" />
+              <span>
+                Con los umbrales bayesianos del modelo, pensados para detectar más empates, el pronóstico sería{' '}
+                <span className="font-bold">«{labels[result.predicted_bayesian]}»</span>, aunque «{labels[result.predicted]}»
+                sigue siendo el resultado con mayor probabilidad.
+              </span>
+            </p>
+          )}
 
           <div className="mt-6 flex gap-3 border-t border-line pt-4 text-base text-ink-muted">
             <Info aria-hidden className="mt-0.5 size-4 shrink-0" />
