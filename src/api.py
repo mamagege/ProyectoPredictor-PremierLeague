@@ -16,9 +16,13 @@ from prediction_service import EPLPredictor, get_predictor
 logger = logging.getLogger(__name__)
 
 
+_DEFAULT_CORS_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173"
+
+
 def _parse_cors_origins() -> list[str]:
-    raw = os.getenv("CORS_ALLOW_ORIGINS", "*").strip()
-    if not raw or raw == "*":
+    """Orígenes permitidos: por defecto solo la interfaz local; '*' debe pedirse explícitamente."""
+    raw = os.getenv("CORS_ALLOW_ORIGINS", _DEFAULT_CORS_ORIGINS).strip() or _DEFAULT_CORS_ORIGINS
+    if raw == "*":
         return ["*"]
     return [origin.strip() for origin in raw.split(",") if origin.strip()]
 
