@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 /**
  * Entrada de primera carga: un trazo SVG de 3222×3114 se desenreda sobre un fondo
- * sólido y revela la app. Se reproduce una vez por sesión y no se repite.
+ * sólido y revela la app. Se reproduce solo la primera vez que se visita la app.
  *
  * Línea de tiempo: 250 ms de pausa con la cubierta opaca + 2000 ms de desenredo.
  * - strokeDashoffset: 0 → -longitud, cubic-bezier(.645,.045,.355,1)
@@ -53,16 +53,17 @@ function bezier(x1: number, y1: number, x2: number, y2: number) {
 const easeDash = bezier(0.645, 0.045, 0.355, 1)
 const easeWidth = bezier(0.75, 0.15, 0.15, 1)
 
+// Solo la primera visita real: en una herramienta de uso, repetir la intro retrasa la tarea.
 function alreadySeen(): boolean {
   try {
-    return sessionStorage.getItem(SEEN_KEY) === '1'
+    return localStorage.getItem(SEEN_KEY) === '1'
   } catch {
     return false
   }
 }
 function markSeen() {
   try {
-    sessionStorage.setItem(SEEN_KEY, '1')
+    localStorage.setItem(SEEN_KEY, '1')
   } catch {
     /* sin almacenamiento: la intro simplemente puede repetirse */
   }
