@@ -40,15 +40,16 @@ function Row({
 }) {
   const vsNormal = value !== null && base !== null ? value - base : null
   const vsPrev = value !== null && prev !== null ? value - prev : null
-  const whole = value === null ? '—' : num1(value)
+  const whole = value === null ? '–' : num1(value)
   return (
     <li className="py-5 first:pt-0 last:pb-0">
       <div className="flex items-baseline justify-between gap-4">
         <h3 className={`min-w-0 break-words text-base sm:text-lg ${winner ? 'font-bold' : 'text-muted font-bold'}`}>
+          <span aria-hidden className="mr-2 inline-block size-2.5 rounded-full align-middle" style={{ background: TONE[outcome] }} />
           {label}
           {winner && <span className="ml-2 text-sm font-normal text-muted">más probable</span>}
         </h3>
-        <p className="shrink-0 font-display text-5xl font-bold leading-none sm:text-6xl" style={{ color: TONE[outcome] }}>
+        <p className="shrink-0 font-display text-5xl font-bold leading-none sm:text-6xl" style={{ color: value === null ? 'var(--color-line)' : TONE[outcome] }}>
           {whole}
           <span className="ml-1 text-2xl text-muted sm:text-3xl">%</span>
         </p>
@@ -190,6 +191,22 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
                 ))}
                 <p className="mt-1 text-text">Tómalo como una estimación poco fiable.</p>
               </div>
+            </div>
+          )}
+
+          {result && (
+            <div
+              aria-hidden
+              key={`stack-${result.home_team}-${result.away_team}-${result.probabilities.home}`}
+              className="mt-6 flex h-4 gap-0.5 overflow-hidden rounded-sm"
+            >
+              {ORDER.map((o, i) => (
+                <div
+                  key={o}
+                  className="bar-fill"
+                  style={{ width: `${result.probabilities[o]}%`, background: TONE[o], ['--i' as string]: i }}
+                />
+              ))}
             </div>
           )}
 
