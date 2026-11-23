@@ -81,7 +81,7 @@ export default function PredictorView({ teams, dates, teamsError, metrics, onOpe
       <h1 tabIndex={-1} className="sr-only focus:outline-none">
         Predictor de partidos
       </h1>
-      <div className="lg:sticky lg:top-5">
+      <div>
         <MatchForm
           {...fields}
           dates={dates}
