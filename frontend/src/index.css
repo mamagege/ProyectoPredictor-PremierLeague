@@ -73,9 +73,12 @@ body {
   border-radius: 4px;
 }
 
-input, select, button {
-  font: inherit;
-  color: inherit;
+/* En la capa base para que las utilidades de Tailwind (color, tipografía) la sobrescriban */
+@layer base {
+  input, select, button {
+    font: inherit;
+    color: inherit;
+  }
 }
 
 input::placeholder {
