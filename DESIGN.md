@@ -189,6 +189,9 @@ Tablas semánticas con encabezados de fila y de columna, separadores de 1 px, si
 ### Avisos
 Bloque ámbar (`role="status"`) para datos antiguos de un equipo; bloque rosa (`role="alert"`) para errores. Siempre con icono dibujado (Lucide), texto que explica la causa y qué hacer.
 
+### Intro de entrada
+Cubierta de pantalla completa que se reproduce una sola vez por sesión: fondo sólido en azul de isobara (#28466f) con la marca centrada en texto boletín (#e6eef9). Tras 250 ms, un trazo continuo del mismo color se desenreda durante 2 s (desfase del trazo con `cubic-bezier(.645,.045,.355,1)`, grosor de 0,31 a 0,08 con `cubic-bezier(.75,.15,.15,1)`), el fondo se desvanece en el primer 18 %, la marca desaparece a los 950 ms y la cubierta se elimina al terminar. Escape o un toque la saltan; con `prefers-reduced-motion` no aparece; se congela con la pestaña oculta. Es el único movimiento de gran escala del sistema.
+
 ## Do's and Don'ts
 
 ### Do:
