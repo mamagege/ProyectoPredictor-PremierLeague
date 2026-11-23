@@ -77,6 +77,19 @@ export interface MetricsResponse {
   confusion_matrix_norm: number[][]
 }
 
+/** Error de la API con el estado HTTP (0 = sin conexión). Los 0 y 5xx se pueden reintentar. */
+export class ApiRequestError extends Error {
+  readonly status: number
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = 'ApiRequestError'
+    this.status = status
+  }
+  get retriable() {
+    return this.status === 0 || this.status >= 500
+  }
+}
+
 /** Fila del benchmark del modelo en uso (con respaldo para resúmenes antiguos). */
 export function deployedResult(m: MetricsResponse | null): ModelResult | null {
   if (!m) return null
@@ -97,13 +110,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   try {
     res = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...init })
   } catch {
-    throw new Error('No hay conexión con el servicio de predicción.')
+    throw new ApiRequestError('No hay conexión con el servicio de predicción.', 0)
   }
   const body = await res.json().catch(() => null)
   if (!res.ok) {
-    if (typeof body?.detail === 'string') throw new Error(body.detail)
-    throw new Error(
+    if (typeof body?.detail === 'string') throw new ApiRequestError(body.detail, res.status)
+    throw new ApiRequestError(
       res.status >= 500 ? 'El servicio de predicción no responde.' : 'No se pudo procesar la solicitud. Inténtalo de nuevo.',
+      res.status,
     )
   }
   return body as T

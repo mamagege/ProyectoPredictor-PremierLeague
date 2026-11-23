@@ -1,8 +1,9 @@
 import { ArrowDown, ArrowUp, Info, TriangleAlert } from 'lucide-react'
+import ErrorNotice from './ErrorNotice'
 import type { Outcome, PredictResponse } from '../api'
 import { formatDate, num0, num1, pct1, signed1 } from '../lib/format'
-
-export type BaseRates = Record<Outcome, number>
+import type { BaseRates } from '../lib/rates'
+import { staleWarnings } from '../lib/stale'
 
 interface Props {
   result: PredictResponse | null
@@ -13,6 +14,8 @@ interface Props {
   accuracy: number | null
   testMatches: number | null
   onOpenModel: () => void
+  /** Presente solo cuando el error se puede reintentar (sin conexión o fallo del servidor). */
+  onRetry?: (() => void) | null
 }
 
 const TONE: Record<Outcome, string> = {
@@ -30,6 +33,7 @@ function Row({
   prev,
   index,
   winner,
+  loading,
 }: {
   outcome: Outcome
   label: string
@@ -38,6 +42,7 @@ function Row({
   prev: number | null
   index: number
   winner: boolean
+  loading: boolean
 }) {
   const vsNormal = value !== null && base !== null ? value - base : null
   const vsPrev = value !== null && prev !== null ? value - prev : null
@@ -45,14 +50,15 @@ function Row({
   return (
     <li className="py-5 first:pt-0 last:pb-0">
       <div className="flex items-baseline justify-between gap-4">
-        <h3 className={`min-w-0 break-words text-base sm:text-lg ${winner ? 'font-bold' : 'text-muted font-bold'}`}>
+        <h3 className={`min-w-0 break-words text-base sm:text-lg ${winner ? 'font-bold' : 'text-ink-muted font-bold'}`}>
           <span aria-hidden className="mr-2 inline-block size-2.5 rounded-full align-middle" style={{ background: TONE[outcome] }} />
           {label}
-          {winner && <span className="ml-2 text-sm font-normal text-muted">más probable</span>}
+          {winner && <span className="ml-2 text-sm font-normal text-ink-muted">más probable</span>}
         </h3>
-        <p className="shrink-0 font-display text-5xl font-bold leading-none sm:text-6xl" style={{ color: value === null ? 'var(--color-line)' : TONE[outcome] }}>
+        <p
+          className={`shrink-0 font-display text-5xl font-bold leading-none sm:text-6xl ${loading ? 'animate-pulse motion-reduce:animate-none' : ''}`} style={{ color: value === null ? 'var(--color-line)' : TONE[outcome] }}>
           {whole}
-          <span className="ml-1 text-2xl text-muted sm:text-3xl">%</span>
+          <span className="ml-1 text-2xl text-ink-muted sm:text-3xl">%</span>
         </p>
       </div>
 
@@ -75,22 +81,22 @@ function Row({
         {base !== null && (
           <span
             aria-hidden
-            className="absolute -top-1.5 h-6 w-0.5 rounded-full bg-text"
+            className="absolute -top-1.5 h-6 w-0.5 rounded-full bg-ink"
             style={{ left: `calc(${base}% - 1px)` }}
           />
         )}
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
+      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink-muted">
         <span>{base !== null ? `Frecuencia 2021–25: ${pct1(base)}` : 'Frecuencia 2021–25: …'}</span>
         {vsNormal !== null && (
-          <span className="inline-flex items-center gap-1 text-text">
+          <span className="inline-flex items-center gap-1 text-ink">
             {vsNormal >= 0 ? <ArrowUp aria-hidden className="size-3.5" /> : <ArrowDown aria-hidden className="size-3.5" />}
             {signed1(vsNormal)} pts
           </span>
         )}
         {vsPrev !== null && Math.abs(vsPrev) >= 0.05 && (
-          <span className="delta-chip inline-flex items-center rounded px-1.5 py-0.5 text-text">
+          <span className="delta-chip inline-flex items-center rounded px-1.5 py-0.5 text-ink">
             {signed1(vsPrev)} pts vs. cálculo anterior
           </span>
         )}
@@ -99,27 +105,17 @@ function Row({
   )
 }
 
-const STALE_DAYS = 400
-
-/** Avisos cuando el estado de un equipo viene de datos muy viejos respecto a la fecha del pronóstico. */
-function staleWarnings(r: PredictResponse): string[] {
-  const ref = new Date(r.match_date ?? r.data_end ?? '')
-  if (Number.isNaN(ref.getTime())) return []
-  const out: string[] = []
-  for (const [team, last] of [
-    [r.home_team, r.home_last_match],
-    [r.away_team, r.away_last_match],
-  ] as const) {
-    if (!last) continue
-    const days = (ref.getTime() - new Date(last).getTime()) / 86_400_000
-    if (days > STALE_DAYS) {
-      out.push(`${team} no tiene partidos registrados desde ${formatDate(last)}: su estado viene de datos de esa época.`)
-    }
-  }
-  return out
-}
-
-export default function Forecast({ result, previous, busy, error, baseRates, accuracy, testMatches, onOpenModel }: Props) {
+export default function Forecast({
+  result,
+  previous,
+  busy,
+  error,
+  baseRates,
+  accuracy,
+  testMatches,
+  onOpenModel,
+  onRetry,
+}: Props) {
   const warnings = result ? [...(result.warnings ?? []), ...staleWarnings(result)] : []
   const samePair =
     result && previous && previous.home_team === result.home_team && previous.away_team === result.away_team
@@ -135,7 +131,7 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
     <section
       aria-labelledby="forecast-title"
       aria-busy={busy}
-      className={`rounded-lg border border-line bg-panel p-5 transition-opacity sm:p-6 ${busy ? 'opacity-60' : ''}`}
+      className={`rounded-lg border border-line bg-surface p-5 transition-opacity sm:p-6 ${busy ? 'opacity-60' : ''}`}
     >
       {result && !busy && (
         <p role="status" aria-live="polite" className="sr-only">
@@ -143,39 +139,36 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
         </p>
       )}
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 id="forecast-title" className="font-display text-2xl font-bold leading-tight">
+        <h2 id="forecast-title" className="text-balance font-display text-2xl font-bold leading-tight">
           {result ? `${result.home_team} – ${result.away_team}` : 'Pronóstico del partido'}
         </h2>
         {result && (
-          <p className="text-sm text-muted">
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-muted">
+            {result.mock && (
+              <span className="rounded border border-ink-muted px-1.5 py-0.5 font-bold">Datos de ejemplo</span>
+            )}
             {result.match_date ? formatDate(result.match_date) : 'Datos más recientes disponibles'}
           </p>
         )}
       </div>
 
       {error ? (
-        <div role="alert" className="mt-5 flex gap-3 rounded-md border border-danger/50 bg-danger/10 p-4 text-danger">
-          <TriangleAlert aria-hidden className="mt-0.5 size-5 shrink-0" />
-          <div>
-            <p className="font-bold">No se pudo calcular el pronóstico</p>
-            <p className="mt-1 text-sm">{error}</p>
-            {error.startsWith('Historial insuficiente') && (
-              <p className="mt-2 text-sm text-text">
-                Prueba con una fecha posterior (los datos empiezan en agosto de 2000) o deja la fecha vacía.
-              </p>
-            )}
-          </div>
+        <div className="mt-5">
+          <ErrorNotice title="No se pudo calcular el pronóstico" message={error} onRetry={onRetry}>
+            {error.startsWith('Historial insuficiente') &&
+              'Prueba con una fecha posterior (los datos empiezan en agosto de 2000) o deja la fecha vacía.'}
+          </ErrorNotice>
         </div>
       ) : (
         <>
           {!result && (
-            <p className="mt-1 text-muted">
+            <p className="mt-1 text-ink-muted">
               Elige dos equipos y calcula. La marca blanca de cada barra indica con qué frecuencia ocurrió ese resultado en
               los partidos de 2021 a 2025.
             </p>
           )}
           {result && (
-            <p className="mt-1 text-muted">
+            <p className="mt-1 text-ink-muted">
               {result.odds_used
                 ? 'Calculado con las cuotas que ingresaste.'
                 : 'Sin cuotas: el mercado se estimó a partir del Elo.'}{' '}
@@ -190,7 +183,7 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
                 {warnings.map((w) => (
                   <p key={w}>{w}</p>
                 ))}
-                <p className="mt-1 text-text">Tómalo como una estimación poco fiable.</p>
+                <p className="mt-1 text-ink">Tómalo como una estimación poco fiable.</p>
               </div>
             </div>
           )}
@@ -222,11 +215,12 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
                 prev={prev ? prev.probabilities[o] : null}
                 index={i}
                 winner={result?.predicted === o}
+                loading={busy && !result}
               />
             ))}
           </ul>
 
-          <div className="mt-6 flex gap-3 border-t border-line pt-4 text-sm text-muted">
+          <div className="mt-6 flex gap-3 border-t border-line pt-4 text-base text-ink-muted">
             <Info aria-hidden className="mt-0.5 size-4 shrink-0" />
             <p>
               Son tres probabilidades que suman 100 %, no un veredicto.
@@ -236,7 +230,7 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
                   En {testMatches !== null ? num0(testMatches) : 'los'} partidos nunca vistos el modelo acertó el{' '}
                   {pct1(accuracy * 100)}, y casi nunca marca el empate
                   como lo más probable.{' '}
-                  <button type="button" onClick={onOpenModel} className="font-bold text-action underline hover:brightness-125">
+                  <button type="button" onClick={onOpenModel} className="font-bold text-accent underline hover:brightness-125">
                     Ver cómo se evaluó
                   </button>
                 </>

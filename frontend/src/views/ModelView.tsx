@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react'
+import ErrorNotice from '../components/ErrorNotice'
 import { deployedResult, testSize, type MetricsResponse, type ModelResult } from '../api'
 import { num0, num2, pct1 } from '../lib/format'
 
@@ -21,9 +22,9 @@ function Benchmark({ m }: { m: MetricsResponse }) {
     { label: 'F1 del empate', hint: 'más alto es mejor', pick: (r) => r.f1_D, fmt: (n) => pct1(n * 100), dir: 'max' },
   ]
   return (
-    <section aria-labelledby="bench-title" className="rounded-lg border border-line bg-panel p-5 sm:p-6">
+    <section aria-labelledby="bench-title" className="rounded-lg border border-line bg-surface p-5 sm:p-6">
       <h2 id="bench-title" className="font-display text-2xl font-bold leading-tight">Comparación con otros modelos</h2>
-      <p className="mt-1 text-muted">
+      <p className="mt-1 text-ink-muted">
         Los {num0(rows.length)} modelos se evaluaron sobre los mismos {num0(testSize(m))} partidos nunca vistos. La marca señala el
         mejor de cada columna.
       </p>
@@ -31,7 +32,7 @@ function Benchmark({ m }: { m: MetricsResponse }) {
         <table className="w-full min-w-[560px] border-collapse">
           <caption className="sr-only">Métricas de cada modelo en el conjunto de prueba</caption>
           <thead>
-            <tr className="border-b border-line text-left text-sm text-muted">
+            <tr className="border-b border-line text-left text-sm text-ink-muted">
               <th scope="col" className="py-2 pr-3 font-bold">Modelo</th>
               {cols.map((c) => (
                 <th key={c.label} scope="col" className="px-2 py-2 text-right font-bold">
@@ -48,12 +49,12 @@ function Benchmark({ m }: { m: MetricsResponse }) {
                 <tr key={r.model} className={`border-b border-line last:border-0 ${used ? 'bg-raised' : ''}`}>
                   <th scope="row" className="py-3 pl-2 pr-3 text-left font-bold">
                     {r.model}
-                    {used && <span className="block text-sm font-normal text-muted">El que usa esta aplicación</span>}
+                    {used && <span className="block text-sm font-normal text-ink-muted">El que usa esta aplicación</span>}
                   </th>
                   {cols.map((c) => {
                     const isBest = c.pick(r) === best(rows, c.pick, c.dir)
                     return (
-                      <td key={c.label} className={`px-2 py-3 text-right ${isBest ? 'font-bold text-text' : 'text-muted'}`}>
+                      <td key={c.label} className={`px-2 py-3 text-right ${isBest ? 'font-bold text-ink' : 'text-ink-muted'}`}>
                         <span className="inline-flex items-center justify-end gap-1.5">
                           {isBest && <Check aria-hidden className="size-4 text-local" />}
                           {c.fmt(c.pick(r))}
@@ -68,7 +69,7 @@ function Benchmark({ m }: { m: MetricsResponse }) {
           </tbody>
         </table>
       </div>
-      <p className="mt-4 text-sm text-muted">
+      <p className="mt-4 text-base text-ink-muted">
         Las diferencias entre los modelos entrenados son pequeñas. Todos mejoran claramente al modelo ingenuo que siempre
         predice victoria local.
         {mine && beaten.length > 0 && (
@@ -92,9 +93,9 @@ function Confusion({ m }: { m: MetricsResponse }) {
   const drawsMarked = cm.reduce((a, row) => a + row[1], 0)
   const total = cm.flat().reduce((a, b) => a + b, 0)
   return (
-    <section aria-labelledby="cm-title" className="rounded-lg border border-line bg-panel p-5 sm:p-6">
+    <section aria-labelledby="cm-title" className="rounded-lg border border-line bg-surface p-5 sm:p-6">
       <h2 id="cm-title" className="font-display text-2xl font-bold leading-tight">Aciertos y errores por resultado</h2>
-      <p className="mt-1 text-muted">
+      <p className="mt-1 text-ink-muted">
         Cada fila es lo que pasó de verdad; cada columna, lo que el modelo marcó como más probable. En cada celda: partidos y
         porcentaje de esa fila.
       </p>
@@ -102,7 +103,7 @@ function Confusion({ m }: { m: MetricsResponse }) {
         <table className="w-full min-w-[420px] border-separate border-spacing-1.5 text-center">
           <caption className="sr-only">Matriz de confusión del modelo en el conjunto de prueba</caption>
           <thead>
-            <tr className="text-sm text-muted">
+            <tr className="text-sm text-ink-muted">
               <td />
               {CLASSES.map((c) => (
                 <th key={c} scope="col" className="pb-1 font-bold">Marcó {c.toLowerCase()}</th>
@@ -112,14 +113,14 @@ function Confusion({ m }: { m: MetricsResponse }) {
           <tbody>
             {cm.map((row, i) => (
               <tr key={i}>
-                <th scope="row" className="pr-2 text-right text-sm font-bold text-muted">Real: {CLASSES[i].toLowerCase()}</th>
+                <th scope="row" className="pr-2 text-right text-sm font-bold text-ink-muted">Real: {CLASSES[i].toLowerCase()}</th>
                 {row.map((v, j) => {
                   const ok = i === j
                   return (
                     <td
                       key={j}
-                      className={`rounded-md px-2 py-3 ${ok ? 'border-2 border-text' : 'border border-line'}`}
-                      style={{ background: `color-mix(in srgb, var(--color-text) ${Math.round(norm[i][j] * 40)}%, var(--color-raised))` }}
+                      className={`rounded-md px-2 py-3 ${ok ? 'border-2 border-ink' : 'border border-line'}`}
+                      style={{ background: `color-mix(in srgb, var(--color-ink) ${Math.round(norm[i][j] * 40)}%, var(--color-raised))` }}
                     >
                       <span className="block font-display text-2xl font-bold leading-none">{num0(v)}</span>
                       <span className="mt-1 block text-sm">{pct1(norm[i][j] * 100)}</span>
@@ -131,7 +132,7 @@ function Confusion({ m }: { m: MetricsResponse }) {
           </tbody>
         </table>
       </div>
-      <p className="mt-4 text-sm text-muted">
+      <p className="mt-4 text-base text-ink-muted">
         Las celdas con borde blanco, en la diagonal, son aciertos; cuanto más claro el fondo, mayor la proporción de esa fila.
         Los empates son difíciles de anticipar:{' '}
         {drawsMarked === 0
@@ -170,13 +171,13 @@ function Method({ m }: { m: MetricsResponse }) {
       : []),
   ]
   return (
-    <section aria-labelledby="method-title" className="rounded-lg border border-line bg-panel p-5 sm:p-6">
+    <section aria-labelledby="method-title" className="rounded-lg border border-line bg-surface p-5 sm:p-6">
       <h2 id="method-title" className="font-display text-2xl font-bold leading-tight">Cómo se construyó</h2>
       <dl className="mt-4 grid gap-4 sm:grid-cols-2">
         {items.map(([t, d]) => (
           <div key={t}>
             <dt className="font-bold">{t}</dt>
-            <dd className="mt-0.5 text-muted">{d}</dd>
+            <dd className="mt-0.5 text-ink-muted">{d}</dd>
           </div>
         ))}
       </dl>
@@ -184,26 +185,40 @@ function Method({ m }: { m: MetricsResponse }) {
   )
 }
 
-export default function ModelView({ metrics, error }: { metrics: MetricsResponse | null; error: string | null }) {
+export default function ModelView({
+  metrics,
+  error,
+  onRetry,
+}: {
+  metrics: MetricsResponse | null
+  error: string | null
+  onRetry: () => void
+}) {
   const mlp = deployedResult(metrics)
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <header>
-        <h1 className="font-display text-4xl font-bold leading-tight sm:text-5xl">Qué tan bien pronostica</h1>
+        <h1 tabIndex={-1} className="text-balance font-display text-4xl font-bold leading-tight focus:outline-none sm:text-5xl">Qué tan bien pronostica</h1>
         {mlp && (
-          <p className="mt-3 max-w-[65ch] text-lg text-muted">
+          <p className="mt-3 max-w-[65ch] text-lg text-ink-muted">
             Acierta el resultado en {pct1(mlp.accuracy * 100)} de los partidos nunca vistos, frente al{' '}
             {pct1((metrics!.test_results[0].accuracy) * 100)} de un modelo ingenuo que siempre elige victoria local. Más
             que acertar siempre, entrega probabilidades: su log loss es {num2(mlp.log_loss)}.
           </p>
         )}
       </header>
-      {error && (
-        <p role="alert" className="rounded-md border border-danger/50 bg-danger/10 px-3 py-2 text-danger">
-          No se pudieron cargar las métricas: {error}
-        </p>
+      {error && <ErrorNotice title="No se pudieron cargar las métricas" message={error} onRetry={onRetry} />}
+      {!metrics && !error && (
+        <div aria-busy="true" aria-label="Cargando métricas" className="grid gap-5">
+          {[56, 64, 40].map((h) => (
+            <div
+              key={h}
+              style={{ height: `${h * 4}px` }}
+              className="animate-pulse rounded-lg border border-line bg-surface motion-reduce:animate-none"
+            />
+          ))}
+        </div>
       )}
-      {!metrics && !error && <p className="text-muted">Cargando métricas…</p>}
       {metrics && (
         <>
           <Benchmark m={metrics} />

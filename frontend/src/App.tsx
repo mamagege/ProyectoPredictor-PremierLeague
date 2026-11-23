@@ -1,12 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { api, type MetricsResponse, type TeamsResponse } from './api'
 import PredictorView from './views/PredictorView'
 import ModelView from './views/ModelView'
+import PrivacyView from './views/PrivacyView'
 import Intro from './components/Intro'
 
-type Tab = 'predictor' | 'modelo'
+type Tab = 'predictor' | 'modelo' | 'privacidad'
 
-const tabFromHash = (): Tab => (window.location.hash === '#modelo' ? 'modelo' : 'predictor')
+const LABELS: Record<Tab, string> = { predictor: 'Predictor', modelo: 'Modelo', privacidad: 'Privacidad' }
+
+const tabFromHash = (): Tab => {
+  const h = window.location.hash.slice(1)
+  return h === 'modelo' || h === 'privacidad' ? h : 'predictor'
+}
 
 function Mark() {
   return (
@@ -27,32 +33,64 @@ export default function App() {
   const [metrics, setMetrics] = useState<MetricsResponse | null>(null)
   const [metricsError, setMetricsError] = useState<string | null>(null)
 
+  const [navigated, setNavigated] = useState(false)
+  const mainRef = useRef<HTMLElement>(null)
+
   useEffect(() => {
-    const onHash = () => setTab(tabFromHash())
+    const onHash = () => {
+      setTab(tabFromHash())
+      setNavigated(true)
+    }
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
+  // Tras cambiar de pantalla, el foco pasa al título de la vista nueva.
   useEffect(() => {
-    api.teams().then(setTeams).catch((e: Error) => setTeamsError(e.message))
-    api.metrics().then(setMetrics).catch((e: Error) => setMetricsError(e.message))
-  }, [])
+    if (navigated) mainRef.current?.querySelector<HTMLElement>('h1')?.focus()
+  }, [tab, navigated])
+
+  const fetchTeams = useCallback(
+    () => api.teams().then(setTeams).catch((e: Error) => setTeamsError(e.message)),
+    [],
+  )
+  const fetchMetrics = useCallback(
+    () => api.metrics().then(setMetrics).catch((e: Error) => setMetricsError(e.message)),
+    [],
+  )
+
+  // Carga inicial: sincroniza con la API externa.
+  useEffect(() => {
+    fetchTeams()
+    fetchMetrics()
+  }, [fetchTeams, fetchMetrics])
+
+  // Reintentos iniciados por la persona: limpian el error y vuelven a pedir.
+  const retryTeams = () => {
+    setTeamsError(null)
+    fetchTeams()
+  }
+  const retryMetrics = () => {
+    setMetricsError(null)
+    fetchMetrics()
+  }
 
   const go = (t: Tab) => {
-    window.location.hash = t === 'modelo' ? '#modelo' : '#predictor'
+    window.location.hash = `#${t}`
     setTab(t)
+    setNavigated(true)
   }
 
   const navItem = (t: Tab, label: string) => (
     <a
-      href={t === 'modelo' ? '#modelo' : '#predictor'}
+      href={`#${t}`}
       aria-current={tab === t ? 'page' : undefined}
       onClick={(e) => {
         e.preventDefault()
         go(t)
       }}
       className={`inline-flex min-h-11 items-center border-b-2 px-1 font-display text-lg font-bold ${
-        tab === t ? 'border-action text-text' : 'border-transparent text-muted hover:text-text'
+        tab === t ? 'border-accent text-ink' : 'border-transparent text-ink-muted hover:text-ink'
       }`}
     >
       {label}
@@ -62,7 +100,7 @@ export default function App() {
   return (
     <div className="min-h-dvh">
       <Intro />
-      <header className="border-b border-line bg-panel">
+      <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
           <a href="#predictor" onClick={(e) => { e.preventDefault(); go('predictor') }} className="flex items-center gap-2.5 py-3">
             <Mark />
@@ -75,17 +113,41 @@ export default function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <p role="status" className="sr-only">
+        {navigated ? `Pantalla ${LABELS[tab]}` : ''}
+      </p>
+      <main ref={mainRef} className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         {tab === 'predictor' ? (
-          <PredictorView teams={teams} teamsError={teamsError} metrics={metrics} onOpenModel={() => go('modelo')} />
+          <PredictorView
+            teams={teams}
+            teamsError={teamsError}
+            metrics={metrics}
+            onOpenModel={() => go('modelo')}
+            onRetryTeams={retryTeams}
+          />
+        ) : tab === 'modelo' ? (
+          <ModelView metrics={metrics} error={metricsError} onRetry={retryMetrics} />
         ) : (
-          <ModelView metrics={metrics} error={metricsError} />
+          <PrivacyView />
         )}
       </main>
 
-      <footer className="mx-auto max-w-6xl px-4 pb-8 text-sm text-muted sm:px-6">
-        Proyecto PTIA · Escuela Colombiana de Ingeniería Julio Garavito · Grupo 04. Probabilidades estadísticas para
-        entender el juego; no son una recomendación de apuesta.
+      <footer className="mx-auto max-w-6xl px-4 pb-8 text-sm text-ink-muted sm:px-6">
+        <p>
+          Proyecto PTIA · Escuela Colombiana de Ingeniería Julio Garavito · Grupo 04. Probabilidades estadísticas para
+          entender el juego; no son una recomendación de apuesta.
+        </p>
+        <a
+          href="#privacidad"
+          aria-current={tab === 'privacidad' ? 'page' : undefined}
+          onClick={(e) => {
+            e.preventDefault()
+            go('privacidad')
+          }}
+          className="mt-2 inline-flex min-h-11 items-center font-bold text-accent underline"
+        >
+          Privacidad
+        </a>
       </footer>
     </div>
   )

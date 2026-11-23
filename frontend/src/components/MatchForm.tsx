@@ -11,8 +11,8 @@ interface Props {
 }
 
 const inputBase =
-  'w-full rounded-md border border-line bg-raised px-3 py-2.5 text-base text-text ' +
-  'hover:border-muted disabled:opacity-50'
+  'w-full rounded-md border border-line bg-raised px-3 py-2.5 text-base text-ink ' +
+  'hover:border-ink-muted disabled:opacity-50'
 
 function TeamSelect({
   id,
@@ -34,7 +34,7 @@ function TeamSelect({
   const others = teams ? teams.all.filter((t) => !teams.current.includes(t)) : []
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 flex items-center gap-2 text-sm font-bold text-muted">
+      <label htmlFor={id} className="mb-1.5 flex items-center gap-2 text-sm font-bold text-ink-muted">
         <span aria-hidden className="size-2.5 rounded-full" style={{ background: tone }} />
         {label}
       </label>
@@ -64,7 +64,7 @@ function TeamSelect({
         </select>
         <ChevronDown
           aria-hidden
-          className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted"
+          className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted"
         />
       </div>
     </div>
@@ -109,9 +109,9 @@ export default function MatchForm({ teams, offline, busy, onSubmit }: Props) {
   const oddsLabels = ['Local', 'Empate', 'Visitante']
 
   return (
-    <form onSubmit={submit} noValidate className="rounded-lg border border-line bg-panel p-5 sm:p-6">
+    <form onSubmit={submit} noValidate className="rounded-lg border border-line bg-surface p-5 sm:p-6">
       <h2 className="font-display text-2xl font-bold leading-tight">Partido</h2>
-      <p className="mt-1 text-sm text-muted">Elige los dos equipos. Lo demás es opcional.</p>
+      <p className="mt-1 text-sm text-ink-muted">Elige los dos equipos. Lo demás es opcional.</p>
 
       <div className="mt-5 grid gap-4">
         <TeamSelect id="home" label="Local" value={home} onChange={setHome} teams={teams} offline={offline} tone="var(--color-local)" />
@@ -120,7 +120,7 @@ export default function MatchForm({ teams, offline, busy, onSubmit }: Props) {
             type="button"
             onClick={swap}
             aria-label="Intercambiar local y visitante"
-            className="grid size-9 place-items-center rounded-full border border-line bg-raised text-muted hover:border-muted hover:text-text"
+            className="grid size-11 place-items-center rounded-full border border-line bg-raised text-ink-muted hover:border-ink-muted hover:text-ink"
           >
             <ArrowLeftRight aria-hidden className="size-4 rotate-90" />
           </button>
@@ -128,26 +128,26 @@ export default function MatchForm({ teams, offline, busy, onSubmit }: Props) {
         <TeamSelect id="away" label="Visitante" value={away} onChange={setAway} teams={teams} offline={offline} tone="var(--color-away)" />
 
         <div>
-          <label htmlFor="date" className="mb-1.5 block text-sm font-bold text-muted">
+          <label htmlFor="date" className="mb-1.5 block text-sm font-bold text-ink-muted">
             Fecha del partido
           </label>
           <input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputBase} />
-          <p className="mt-1.5 text-sm text-muted">
+          <p className="mt-1.5 text-base text-ink-muted">
             Con fecha, el modelo usa solo lo ocurrido antes. Sin fecha, usa los datos más recientes
             {teams?.data_end ? ` (hasta el ${formatDate(teams.data_end)})` : ''}.
           </p>
         </div>
 
-        <details className="group rounded-md border border-line">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-sm font-bold text-muted hover:text-text">
+        <details className="group border-t border-line">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 pt-1 text-sm font-bold text-ink-muted hover:text-ink">
             Cuotas de mercado (opcional)
             <ChevronDown aria-hidden className="size-4 transition-transform group-open:rotate-180" />
           </summary>
-          <div className="border-t border-line p-3">
+          <div className="pb-1 pt-2">
             <div className="grid grid-cols-3 gap-2">
               {oddsLabels.map((l, i) => (
                 <div key={l}>
-                  <label htmlFor={`odd-${i}`} className="mb-1 block text-xs font-bold text-muted">
+                  <label htmlFor={`odd-${i}`} className="mb-1 block text-xs font-bold text-ink-muted">
                     {l}
                   </label>
                   <input
@@ -161,7 +161,7 @@ export default function MatchForm({ teams, offline, busy, onSubmit }: Props) {
                 </div>
               ))}
             </div>
-            <p className="mt-2 text-sm text-muted">
+            <p className="mt-2 text-base text-ink-muted">
               Cuotas decimales previas al partido. Son un dato de entrada para el modelo, no una recomendación. Sin
               cuotas, el mercado se estima a partir del Elo.
             </p>
@@ -178,7 +178,7 @@ export default function MatchForm({ teams, offline, busy, onSubmit }: Props) {
       <button
         type="submit"
         disabled={busy || !teams}
-        className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-action px-4 py-2.5 font-display text-lg font-bold text-ground hover:brightness-110 disabled:opacity-60"
+        className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-accent px-4 py-2.5 font-display text-lg font-bold text-canvas hover:brightness-110 disabled:opacity-60"
       >
         {busy && <Loader2 aria-hidden className="size-5 animate-spin" />}
         {busy ? 'Calculando…' : 'Calcular pronóstico'}

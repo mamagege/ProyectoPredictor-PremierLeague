@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   api,
+  ApiRequestError,
   deployedResult,
   testSize,
   type MetricsResponse,
@@ -8,31 +9,27 @@ import {
   type PredictResponse,
   type TeamsResponse,
 } from '../api'
+import ErrorNotice from '../components/ErrorNotice'
 import MatchForm from '../components/MatchForm'
-import Forecast, { type BaseRates } from '../components/Forecast'
+import Forecast from '../components/Forecast'
 import Conditions from '../components/Conditions'
+import { baseRatesFrom } from '../lib/rates'
 
 interface Props {
   teams: TeamsResponse | null
   teamsError: string | null
   metrics: MetricsResponse | null
   onOpenModel: () => void
+  onRetryTeams: () => void
 }
 
-/** Frecuencia real de cada desenlace en el conjunto de prueba (la "normal"). */
-function baseRatesFrom(m: MetricsResponse | null): BaseRates | null {
-  if (!m) return null
-  const rows = m.confusion_matrix.map((r) => r.reduce((a, b) => a + b, 0))
-  const total = rows.reduce((a, b) => a + b, 0)
-  if (!total) return null
-  return { home: (rows[0] / total) * 100, draw: (rows[1] / total) * 100, away: (rows[2] / total) * 100 }
-}
-
-export default function PredictorView({ teams, teamsError, metrics, onOpenModel }: Props) {
+export default function PredictorView({ teams, teamsError, metrics, onOpenModel, onRetryTeams }: Props) {
   const [result, setResult] = useState<PredictResponse | null>(null)
   const [previous, setPrevious] = useState<PredictResponse | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [retriable, setRetriable] = useState(false)
+  const lastRequest = useRef<PredictRequest | null>(null)
   const resultRef = useRef<HTMLDivElement>(null)
 
   // En pantallas de una columna el resultado queda debajo del formulario: se desplaza hasta él.
@@ -44,6 +41,7 @@ export default function PredictorView({ teams, teamsError, metrics, onOpenModel 
   }, [result])
 
   async function submit(req: PredictRequest) {
+    lastRequest.current = req
     setBusy(true)
     setError(null)
     try {
@@ -52,6 +50,7 @@ export default function PredictorView({ teams, teamsError, metrics, onOpenModel 
       setResult(next)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error inesperado')
+      setRetriable(e instanceof ApiRequestError && e.retriable)
     } finally {
       setBusy(false)
     }
@@ -63,13 +62,18 @@ export default function PredictorView({ teams, teamsError, metrics, onOpenModel 
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
+      <h1 tabIndex={-1} className="sr-only focus:outline-none">
+        Predictor de partidos
+      </h1>
       <div className="lg:sticky lg:top-5">
         <MatchForm teams={teams} offline={teamsError !== null} busy={busy} onSubmit={submit} />
         {teamsError && (
-          <p role="alert" className="mt-4 rounded-md border border-danger/50 bg-danger/10 px-3 py-2 text-sm text-danger">
-            {teamsError} Inicia la API desde la raíz del repositorio con{' '}
-            <code className="font-bold">uvicorn api.main:app --port 8000</code> y recarga la página.
-          </p>
+          <div className="mt-4">
+            <ErrorNotice message={teamsError} onRetry={onRetryTeams}>
+              Si la API no está iniciada, arráncala desde la raíz del repositorio con{' '}
+              <code className="font-bold">uvicorn api.main:app --port 8000</code>.
+            </ErrorNotice>
+          </div>
         )}
       </div>
       <div ref={resultRef} className="grid scroll-mt-4 grid-cols-[minmax(0,1fr)] gap-5">
@@ -82,6 +86,7 @@ export default function PredictorView({ teams, teamsError, metrics, onOpenModel 
           accuracy={accuracy}
           testMatches={testMatches}
           onOpenModel={onOpenModel}
+          onRetry={retriable ? () => lastRequest.current && submit(lastRequest.current) : null}
         />
         {result && !error && <Conditions result={result} />}
       </div>

@@ -10,37 +10,52 @@
   --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Barlow Semi Condensed", "Barlow", ui-sans-serif, sans-serif;
 
-  /* Azul tinta nocturno: escena = sofá, noche previa al partido, móvil */
-  --color-ground: #07142a;
-  --color-panel: #0b1d38;
-  --color-raised: #12294b;
-  --color-line: #28466f;
-  --color-text: #e6eef9;
-  --color-muted: #a3b6d1;
+  /* Colores por rol, leídos de los canales RGB de :root (un modo claro solo cambia esos valores) */
+  --color-canvas: rgb(var(--canvas));
+  --color-surface: rgb(var(--surface));
+  --color-raised: rgb(var(--raised));
+  --color-line: rgb(var(--line));
+  --color-ink: rgb(var(--ink));
+  --color-ink-muted: rgb(var(--ink-muted));
+  --color-accent: rgb(var(--accent));
+  --color-danger: rgb(var(--danger));
+  /* Colores reservados: significan únicamente Local, Empate y Visitante */
+  --color-local: rgb(var(--local));
+  --color-draw: rgb(var(--draw));
+  --color-away: rgb(var(--away));
 
-  /* Escala tipo radar: un tono por desenlace */
-  --color-local: #3fd8c8;
-  --color-draw: #f4c95d;
-  --color-away: #ff7a93;
-  --color-action: #5aa0ff;
-  --color-danger: #ff9aa9;
-
+  /* Tokens de movimiento: curvas y duraciones con nombre */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-bar: 700ms;
+  --duration-flash: 900ms;
+  --stagger-bar: 90ms;
 }
 
+/* Canales RGB: azul tinta nocturno (escena: sofá, noche previa al partido, móvil) */
 :root {
   color-scheme: dark;
+  --canvas: 7 20 42;
+  --surface: 11 29 56;
+  --raised: 18 41 75;
+  --line: 40 70 111;
+  --ink: 230 238 249;
+  --ink-muted: 163 182 209;
+  --accent: 90 160 255;
+  --danger: 255 154 169;
+  --local: 63 216 200;
+  --draw: 244 201 93;
+  --away: 255 122 147;
 }
 
 html {
-  background: var(--color-ground);
-  scrollbar-color: var(--color-line) var(--color-ground);
+  background: var(--color-canvas);
+  scrollbar-color: var(--color-line) var(--color-canvas);
 }
 
 body {
   margin: 0;
-  background: var(--color-ground);
-  color: var(--color-text);
+  background: var(--color-canvas);
+  color: var(--color-ink);
   font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
@@ -48,23 +63,26 @@ body {
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--color-action) 40%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 40%, transparent);
   color: #fff;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-action);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-input, select, button {
-  font: inherit;
-  color: inherit;
+/* En la capa base para que las utilidades de Tailwind (color, tipografía) la sobrescriban */
+@layer base {
+  input, select, button {
+    font: inherit;
+    color: inherit;
+  }
 }
 
 input::placeholder {
-  color: color-mix(in srgb, var(--color-muted) 80%, transparent);
+  color: color-mix(in srgb, var(--color-ink-muted) 80%, transparent);
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
@@ -78,17 +96,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   to { transform: scaleX(1); }
 }
 @keyframes hold-flash {
-  from { background-color: color-mix(in srgb, var(--color-action) 45%, transparent); }
-  to { background-color: color-mix(in srgb, var(--color-action) 14%, transparent); }
+  from { background-color: color-mix(in srgb, var(--color-accent) 45%, transparent); }
+  to { background-color: color-mix(in srgb, var(--color-accent) 14%, transparent); }
 }
 
 .bar-fill {
   transform-origin: left center;
-  animation: grow-x 700ms var(--ease-out-expo) both;
-  animation-delay: calc(var(--i, 0) * 90ms);
+  animation: grow-x var(--duration-bar) var(--ease-out-expo) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger-bar));
 }
 .delta-chip {
-  animation: hold-flash 900ms var(--ease-out-expo) both;
+  animation: hold-flash var(--duration-flash) var(--ease-out-expo) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
