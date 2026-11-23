@@ -52,7 +52,7 @@ export default function App() {
         go(t)
       }}
       className={`inline-flex min-h-11 items-center border-b-2 px-1 font-display text-lg font-bold ${
-        tab === t ? 'border-action text-text' : 'border-transparent text-muted hover:text-text'
+        tab === t ? 'border-accent text-ink' : 'border-transparent text-ink-muted hover:text-ink'
       }`}
     >
       {label}
@@ -62,7 +62,7 @@ export default function App() {
   return (
     <div className="min-h-dvh">
       <Intro />
-      <header className="border-b border-line bg-panel">
+      <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
           <a href="#predictor" onClick={(e) => { e.preventDefault(); go('predictor') }} className="flex items-center gap-2.5 py-3">
             <Mark />
@@ -83,7 +83,7 @@ export default function App() {
         )}
       </main>
 
-      <footer className="mx-auto max-w-6xl px-4 pb-8 text-sm text-muted sm:px-6">
+      <footer className="mx-auto max-w-6xl px-4 pb-8 text-sm text-ink-muted sm:px-6">
         Proyecto PTIA · Escuela Colombiana de Ingeniería Julio Garavito · Grupo 04. Probabilidades estadísticas para
         entender el juego; no son una recomendación de apuesta.
       </footer>

@@ -44,14 +44,14 @@ function Row({
   return (
     <li className="py-5 first:pt-0 last:pb-0">
       <div className="flex items-baseline justify-between gap-4">
-        <h3 className={`min-w-0 break-words text-base sm:text-lg ${winner ? 'font-bold' : 'text-muted font-bold'}`}>
+        <h3 className={`min-w-0 break-words text-base sm:text-lg ${winner ? 'font-bold' : 'text-ink-muted font-bold'}`}>
           <span aria-hidden className="mr-2 inline-block size-2.5 rounded-full align-middle" style={{ background: TONE[outcome] }} />
           {label}
-          {winner && <span className="ml-2 text-sm font-normal text-muted">más probable</span>}
+          {winner && <span className="ml-2 text-sm font-normal text-ink-muted">más probable</span>}
         </h3>
         <p className="shrink-0 font-display text-5xl font-bold leading-none sm:text-6xl" style={{ color: value === null ? 'var(--color-line)' : TONE[outcome] }}>
           {whole}
-          <span className="ml-1 text-2xl text-muted sm:text-3xl">%</span>
+          <span className="ml-1 text-2xl text-ink-muted sm:text-3xl">%</span>
         </p>
       </div>
 
@@ -74,22 +74,22 @@ function Row({
         {base !== null && (
           <span
             aria-hidden
-            className="absolute -top-1.5 h-6 w-0.5 rounded-full bg-text"
+            className="absolute -top-1.5 h-6 w-0.5 rounded-full bg-ink"
             style={{ left: `calc(${base}% - 1px)` }}
           />
         )}
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
+      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink-muted">
         <span>{base !== null ? `Frecuencia 2021–25: ${pct1(base)}` : 'Frecuencia 2021–25: …'}</span>
         {vsNormal !== null && (
-          <span className="inline-flex items-center gap-1 text-text">
+          <span className="inline-flex items-center gap-1 text-ink">
             {vsNormal >= 0 ? <ArrowUp aria-hidden className="size-3.5" /> : <ArrowDown aria-hidden className="size-3.5" />}
             {signed1(vsNormal)} pts
           </span>
         )}
         {vsPrev !== null && Math.abs(vsPrev) >= 0.05 && (
-          <span className="delta-chip inline-flex items-center rounded px-1.5 py-0.5 text-text">
+          <span className="delta-chip inline-flex items-center rounded px-1.5 py-0.5 text-ink">
             {signed1(vsPrev)} pts vs. cálculo anterior
           </span>
         )}
@@ -134,7 +134,7 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
     <section
       aria-labelledby="forecast-title"
       aria-busy={busy}
-      className={`rounded-lg border border-line bg-panel p-5 transition-opacity sm:p-6 ${busy ? 'opacity-60' : ''}`}
+      className={`rounded-lg border border-line bg-surface p-5 transition-opacity sm:p-6 ${busy ? 'opacity-60' : ''}`}
     >
       {result && !busy && (
         <p role="status" aria-live="polite" className="sr-only">
@@ -146,7 +146,7 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
           {result ? `${result.home_team} – ${result.away_team}` : 'Pronóstico del partido'}
         </h2>
         {result && (
-          <p className="text-sm text-muted">
+          <p className="text-sm text-ink-muted">
             {result.match_date ? formatDate(result.match_date) : 'Datos más recientes disponibles'}
           </p>
         )}
@@ -159,7 +159,7 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
             <p className="font-bold">No se pudo calcular el pronóstico</p>
             <p className="mt-1 text-sm">{error}</p>
             {error.startsWith('Historial insuficiente') && (
-              <p className="mt-2 text-sm text-text">
+              <p className="mt-2 text-sm text-ink">
                 Prueba con una fecha posterior (los datos empiezan en agosto de 2000) o deja la fecha vacía.
               </p>
             )}
@@ -168,13 +168,13 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
       ) : (
         <>
           {!result && (
-            <p className="mt-1 text-muted">
+            <p className="mt-1 text-ink-muted">
               Elige dos equipos y calcula. La marca blanca de cada barra indica con qué frecuencia ocurrió ese resultado en
               los partidos de 2021 a 2025.
             </p>
           )}
           {result && (
-            <p className="mt-1 text-muted">
+            <p className="mt-1 text-ink-muted">
               {result.odds_used
                 ? 'Calculado con las cuotas que ingresaste.'
                 : 'Sin cuotas: el mercado se estimó a partir del Elo.'}{' '}
@@ -189,7 +189,7 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
                 {warnings.map((w) => (
                   <p key={w}>{w}</p>
                 ))}
-                <p className="mt-1 text-text">Tómalo como una estimación poco fiable.</p>
+                <p className="mt-1 text-ink">Tómalo como una estimación poco fiable.</p>
               </div>
             </div>
           )}
@@ -225,7 +225,7 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
             ))}
           </ul>
 
-          <div className="mt-6 flex gap-3 border-t border-line pt-4 text-sm text-muted">
+          <div className="mt-6 flex gap-3 border-t border-line pt-4 text-sm text-ink-muted">
             <Info aria-hidden className="mt-0.5 size-4 shrink-0" />
             <p>
               Son tres probabilidades que suman 100 %, no un veredicto.
@@ -234,7 +234,7 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
                   {' '}
                   En 1.490 partidos nunca vistos el modelo acertó el {pct1(accuracy * 100)}, y casi nunca marca el empate
                   como lo más probable.{' '}
-                  <button type="button" onClick={onOpenModel} className="font-bold text-action underline hover:brightness-125">
+                  <button type="button" onClick={onOpenModel} className="font-bold text-accent underline hover:brightness-125">
                     Ver cómo se evaluó
                   </button>
                 </>
