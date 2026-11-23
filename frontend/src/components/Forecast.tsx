@@ -1,7 +1,7 @@
 import { ArrowDown, ArrowUp, Info, TriangleAlert } from 'lucide-react'
 import ErrorNotice from './ErrorNotice'
 import type { Outcome, PredictResponse } from '../api'
-import { formatDate, num1, pct1, signed1 } from '../lib/format'
+import { formatDate, num0, num1, pct1, signed1 } from '../lib/format'
 import type { BaseRates } from '../lib/rates'
 import { staleWarnings } from '../lib/stale'
 
@@ -12,6 +12,7 @@ interface Props {
   error: string | null
   baseRates: BaseRates | null
   accuracy: number | null
+  testMatches: number | null
   onOpenModel: () => void
   /** Presente solo cuando el error se puede reintentar (sin conexión o fallo del servidor). */
   onRetry?: (() => void) | null
@@ -104,8 +105,18 @@ function Row({
   )
 }
 
-export default function Forecast({ result, previous, busy, error, baseRates, accuracy, onOpenModel, onRetry }: Props) {
-  const warnings = result ? staleWarnings(result) : []
+export default function Forecast({
+  result,
+  previous,
+  busy,
+  error,
+  baseRates,
+  accuracy,
+  testMatches,
+  onOpenModel,
+  onRetry,
+}: Props) {
+  const warnings = result ? [...(result.warnings ?? []), ...staleWarnings(result)] : []
   const samePair =
     result && previous && previous.home_team === result.home_team && previous.away_team === result.away_team
   const prev = samePair ? previous : null
@@ -216,7 +227,8 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
               {accuracy !== null && (
                 <>
                   {' '}
-                  En 1.490 partidos nunca vistos el modelo acertó el {pct1(accuracy * 100)}, y casi nunca marca el empate
+                  En {testMatches !== null ? num0(testMatches) : 'los'} partidos nunca vistos el modelo acertó el{' '}
+                  {pct1(accuracy * 100)}, y casi nunca marca el empate
                   como lo más probable.{' '}
                   <button type="button" onClick={onOpenModel} className="font-bold text-accent underline hover:brightness-125">
                     Ver cómo se evaluó

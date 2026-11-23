@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import {
   api,
   ApiRequestError,
+  deployedResult,
+  testSize,
   type MetricsResponse,
   type PredictRequest,
   type PredictResponse,
@@ -55,7 +57,8 @@ export default function PredictorView({ teams, teamsError, metrics, onOpenModel,
   }
 
   const baseRates = baseRatesFrom(metrics)
-  const accuracy = metrics ? (metrics.test_results.find((r) => r.model.startsWith('Deep MLP'))?.accuracy ?? null) : null
+  const accuracy = deployedResult(metrics)?.accuracy ?? null
+  const testMatches = metrics ? testSize(metrics) : null
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
@@ -81,6 +84,7 @@ export default function PredictorView({ teams, teamsError, metrics, onOpenModel,
           error={error}
           baseRates={baseRates}
           accuracy={accuracy}
+          testMatches={testMatches}
           onOpenModel={onOpenModel}
           onRetry={retriable ? () => lastRequest.current && submit(lastRequest.current) : null}
         />

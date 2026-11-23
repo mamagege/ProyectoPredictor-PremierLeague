@@ -1,0 +1,27 @@
+{
+  "model_version": "3.0.0-hito3-backend",
+  "selected_architecture": "Residual_Deep_MLP_3L",
+  "temperature": 1.172273,
+  "bayesian_weights": [
+    1.0,
+    1.49,
+    1.08
+  ],
+  "bayesian_tuning_val": {
+    "weights": [
+      1.0,
+      1.49,
+      1.08
+    ],
+    "min_accuracy_guardrail": 0.5242,
+    "val_base_accuracy": 0.5349,
+    "val_base_macro_f1": 0.416,
+    "val_base_f1_D": 0.0505,
+    "val_tuned_accuracy": 0.525,
+    "val_tuned_balanced_accuracy": 0.4864,
+    "val_tuned_macro_f1": 0.487,
+    "val_tuned_f1_D": 0.2957
+  },
+  "seed": 42,
+  "trained_at_utc": "2026-11-22T20:26:22.093946+00:00"
+}

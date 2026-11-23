@@ -1,6 +1,6 @@
 import { Check } from 'lucide-react'
 import ErrorNotice from '../components/ErrorNotice'
-import type { MetricsResponse, ModelResult } from '../api'
+import { deployedResult, testSize, type MetricsResponse, type ModelResult } from '../api'
 import { num0, num2, pct1 } from '../lib/format'
 
 const CLASSES = ['Local', 'Empate', 'Visitante']
@@ -12,6 +12,9 @@ function best(rows: ModelResult[], pick: (r: ModelResult) => number, dir: 'max' 
 
 function Benchmark({ m }: { m: MetricsResponse }) {
   const rows = m.test_results
+  const mine = deployedResult(m)
+  const leader = rows.reduce((a, b) => (b.accuracy > a.accuracy ? b : a), rows[0])
+  const beaten = mine ? rows.filter((r) => r !== mine && r.accuracy > mine.accuracy) : []
   const cols: { label: string; hint: string; pick: (r: ModelResult) => number; fmt: (n: number) => string; dir: 'max' | 'min' }[] = [
     { label: 'Exactitud', hint: 'más alto es mejor', pick: (r) => r.accuracy, fmt: (n) => pct1(n * 100), dir: 'max' },
     { label: 'Log loss', hint: 'más bajo es mejor', pick: (r) => r.log_loss, fmt: (n) => n.toFixed(3).replace('.', ','), dir: 'min' },
@@ -21,7 +24,10 @@ function Benchmark({ m }: { m: MetricsResponse }) {
   return (
     <section aria-labelledby="bench-title" className="rounded-lg border border-line bg-surface p-5 sm:p-6">
       <h2 id="bench-title" className="font-display text-2xl font-bold leading-tight">Comparación con otros modelos</h2>
-      <p className="mt-1 text-ink-muted">Los cuatro se evaluaron sobre los mismos partidos nunca vistos. La marca señala el mejor de cada columna.</p>
+      <p className="mt-1 text-ink-muted">
+        Los {num0(rows.length)} modelos se evaluaron sobre los mismos {num0(testSize(m))} partidos nunca vistos. La marca señala el
+        mejor de cada columna.
+      </p>
       <div className="relative -mx-1 mt-4 overflow-x-auto px-1">
         <table className="w-full min-w-[560px] border-collapse">
           <caption className="sr-only">Métricas de cada modelo en el conjunto de prueba</caption>
@@ -38,7 +44,7 @@ function Benchmark({ m }: { m: MetricsResponse }) {
           </thead>
           <tbody>
             {rows.map((r) => {
-              const used = r.model.startsWith('Deep MLP')
+              const used = r === mine
               return (
                 <tr key={r.model} className={`border-b border-line last:border-0 ${used ? 'bg-raised' : ''}`}>
                   <th scope="row" className="py-3 pl-2 pr-3 text-left font-bold">
@@ -65,8 +71,17 @@ function Benchmark({ m }: { m: MetricsResponse }) {
       </div>
       <p className="mt-4 text-base text-ink-muted">
         Las diferencias entre los modelos entrenados son pequeñas. Todos mejoran claramente al modelo ingenuo que siempre
-        predice victoria local. Esta aplicación usa la red neuronal profunda porque es el componente central del proyecto
-        del curso; la regresión logística la supera por poco en exactitud y log loss.
+        predice victoria local.
+        {mine && beaten.length > 0 && (
+          <>
+            {' '}
+            En exactitud, la red queda {num2((leader.accuracy - mine.accuracy) * 100)} puntos por detrás de{' '}
+            {beaten.map((r) => r.model).join(' y ')}: con los datos disponibles, las cuotas del mercado ya recogen casi
+            toda la información previa al partido.
+          </>
+        )}{' '}
+        Esta aplicación usa la red neuronal profunda porque es el componente central del proyecto del curso
+        {mine && mine.f1_D === best(rows, (r) => r.f1_D, 'max') ? ' y es la que más empates identifica (F1 del empate)' : ''}.
       </p>
     </section>
   )
@@ -75,6 +90,8 @@ function Benchmark({ m }: { m: MetricsResponse }) {
 function Confusion({ m }: { m: MetricsResponse }) {
   const cm = m.confusion_matrix
   const norm = m.confusion_matrix_norm
+  const drawsMarked = cm.reduce((a, row) => a + row[1], 0)
+  const total = cm.flat().reduce((a, b) => a + b, 0)
   return (
     <section aria-labelledby="cm-title" className="rounded-lg border border-line bg-surface p-5 sm:p-6">
       <h2 id="cm-title" className="font-display text-2xl font-bold leading-tight">Aciertos y errores por resultado</h2>
@@ -117,20 +134,41 @@ function Confusion({ m }: { m: MetricsResponse }) {
       </div>
       <p className="mt-4 text-base text-ink-muted">
         Las celdas con borde blanco, en la diagonal, son aciertos; cuanto más claro el fondo, mayor la proporción de esa fila.
-        Los empates son difíciles de anticipar: el modelo nunca marcó el empate como lo más probable (columna del medio en
-        cero), por eso conviene leer siempre las tres probabilidades y no solo el resultado destacado.
+        Los empates son difíciles de anticipar:{' '}
+        {drawsMarked === 0
+          ? 'el modelo nunca marcó el empate como lo más probable (columna del medio en cero)'
+          : `el modelo marcó el empate como lo más probable solo en ${num0(drawsMarked)} de ${num0(total)} partidos (columna del medio)`}
+        , por eso conviene leer siempre las tres probabilidades y no solo el resultado destacado.
       </p>
     </section>
   )
 }
 
 function Method({ m }: { m: MetricsResponse }) {
-  const total = m.confusion_matrix.flat().reduce((a, b) => a + b, 0)
+  const span = (s: string[] | null, fallback: string) =>
+    s && s.length ? `${s[0].slice(0, 4)}–${s[s.length - 1].slice(0, 2)}${s[s.length - 1].slice(5)}` : fallback
+  const train = span(m.train_seasons, '2000–2017')
+  const val = span(m.val_seasons, '2017–2021')
+  const test = span(m.test_seasons, '2021–2025')
+  const prosp = m.prospective_results.find((r) => r.model === m.deployed_model)
   const items = [
-    ['Partidos de prueba', `${num0(total)} partidos de 2021 a 2025 que el modelo nunca vio`],
-    ['Orden cronológico', 'Entrenamiento 2000–2017, validación 2017–2021, prueba 2021–2025: nada del futuro entra al pasado'],
-    ['Variables de entrada', '40 datos previos al partido: Elo, forma, goles, descanso, historial directo y mercado'],
-    ['Red neuronal', `${m.selected_architecture}, salida de tres probabilidades; ${num0(m.epochs_trained)} épocas de entrenamiento`],
+    ['Partidos de prueba', `${num0(testSize(m))} partidos (${test}) que el modelo nunca vio`],
+    ['Orden cronológico', `Entrenamiento ${train}, validación ${val}, prueba ${test}: nada del futuro entra al pasado`],
+    [
+      'Variables de entrada',
+      `${m.n_features ?? 40} datos previos al partido: Elo, forma, goles, tiros, descanso, historial directo y mercado`,
+    ],
+    [
+      'Red neuronal',
+      `${m.selected_architecture}, salida de tres probabilidades; ${num0(m.epochs_trained)} épocas de entrenamiento` +
+        (m.total_params ? `, ${num0(m.total_params)} parámetros` : ''),
+    ],
+    ...(m.temperature
+      ? [['Calibración', `Temperature scaling (T = ${num2(m.temperature)}) ajustado en validación para que los porcentajes sean fiables`]]
+      : []),
+    ...(prosp
+      ? [['Temporada 2025/26', `Prueba extra fuera de muestra: ${pct1(prosp.accuracy * 100)} de acierto en ${num0(prosp.n_samples ?? 0)} partidos`]]
+      : []),
   ]
   return (
     <section aria-labelledby="method-title" className="rounded-lg border border-line bg-surface p-5 sm:p-6">
@@ -156,7 +194,7 @@ export default function ModelView({
   error: string | null
   onRetry: () => void
 }) {
-  const mlp = metrics?.test_results.find((r) => r.model.startsWith('Deep MLP'))
+  const mlp = deployedResult(metrics)
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <header>

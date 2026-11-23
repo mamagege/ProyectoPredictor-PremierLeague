@@ -29,8 +29,8 @@ sys.path.insert(0, str(ROOT))
 
 MOCK = os.getenv("EPL_MOCK", "0") == "1"
 
-# Equipos de la temporada 2024/25 (los "activos" que se muestran primero en la UI).
-CURRENT_SEASON = "2024/25"
+# Temporada que usa el modo simulado. En modo real se toma la temporada más reciente del historial.
+MOCK_SEASON = "2024/25"
 
 
 # ---------------------------------------------------------------- esquemas
@@ -80,6 +80,8 @@ class PredictResponse(BaseModel):
     home_last_match: Optional[str] = None  # último partido registrado antes de la fecha
     away_last_match: Optional[str] = None
     data_end: Optional[str] = None  # fecha del último partido del dataset
+    warnings: list[str] = Field(default_factory=list)  # avisos del servicio (debutantes, fecha futura…)
+    model_version: Optional[str] = None
     mock: bool = False
 
 
@@ -89,14 +91,14 @@ class RealBackend:
         from prediction_service import EPLPredictor  # import perezoso (TensorFlow)
 
         self.p = EPLPredictor()
-        epl = self.p.epl
-        self.current = sorted(
-            set(epl.loc[epl["Season"] == CURRENT_SEASON, "HomeTeam"].unique())
-        )
+        self.season, self.current = _latest_full_season(self.p.df_history)
         self.all_teams = sorted(self.p.known_teams)
 
     def teams(self):
-        return self.current, self.all_teams
+        return self.season, self.current, self.all_teams
+
+    def data_end(self) -> str:
+        return self.p.last_history_date.date().isoformat()
 
     def _last_match(self, team: str, before: Optional[str]) -> Optional[str]:
         h = self.p.df_history
@@ -115,8 +117,9 @@ class RealBackend:
         if res["status"] != "success":
             raise HTTPException(status_code=422, detail=res["message"])
 
-        h_stats = p.get_latest_team_stats(home, when)
-        a_stats = p.get_latest_team_stats(away, when)
+        ctx = res["contexto_prepartido"]
+        h_stats = _snapshot_state(p, home, when, True, ctx["Elo_Local"])
+        a_stats = _snapshot_state(p, away, when, False, ctx["Elo_Visitante"])
         h2h = p.get_h2h_stats(home, away, when)
         np_ = res["numeric_probabilities"]
         total = np_["P_Home"] + np_["P_Draw"] + np_["P_Away"]
@@ -130,19 +133,47 @@ class RealBackend:
             match_date=when,
             home_last_match=self._last_match(home, when),
             away_last_match=self._last_match(away, when),
-            data_end=self.p.df_history["MatchDate"].max().date().isoformat(),
+            data_end=self.p.last_history_date.date().isoformat(),
             probabilities=Probabilities(**pct),
             predicted=predicted,
             odds_used=req.odds is not None,
-            home_state=_state(h_stats),
-            away_state=_state(a_stats),
+            home_state=h_stats,
+            away_state=a_stats,
             h2h=Probabilities(home=round(h2h[0] * 100, 1), draw=round(h2h[1] * 100, 1),
                               away=round(h2h[2] * 100, 1)),
+            warnings=list(res.get("warnings", [])),
+            model_version=res.get("model_version"),
         )
 
 
-def _state(s: dict) -> TeamState:
-    return TeamState(**{k: round(float(s[k]), 2) for k in TeamState.model_fields})
+def _latest_full_season(history) -> tuple[str, list[str]]:
+    """Temporada más reciente del historial que ya tiene a sus 20 equipos, y esos equipos."""
+    for season in sorted(history["Season"].dropna().unique(), reverse=True):
+        rows = history[history["Season"] == season]
+        teams = set(rows["HomeTeam"]).union(rows["AwayTeam"])
+        if len(teams) >= 20:
+            return str(season), sorted(teams)
+    return "", []
+
+
+def _snapshot_state(p, team: str, when: Optional[str], is_home: bool, model_elo: float) -> TeamState:
+    """Estado pre-partido del equipo con el mismo motor de variables que usa el modelo.
+
+    Usa el Elo que efectivamente entró al modelo (con imputación si el equipo no tenía rating),
+    así los números de la UI coinciden con la predicción. Funciona también con equipos debutantes.
+    """
+    s = p.get_team_snapshot(team, when, is_home=is_home)
+    n = int(s["matches_in_history"])
+    return TeamState(
+        elo=round(float(model_elo), 2),
+        form5=round(float(s["rolling_pts5"]) * min(5, n), 1),
+        rolling_pts5=round(float(s["rolling_pts5"]), 2),
+        rolling_gf5=round(float(s["rolling_gf5"]), 2),
+        rolling_ga5=round(float(s["rolling_ga5"]), 2),
+        rest_days=round(float(s["rest_days"]), 2),
+        season_pts=float(s["season_pts"]),
+        season_gd=float(s["season_gd"]),
+    )
 
 
 class MockBackend:
@@ -158,7 +189,10 @@ class MockBackend:
 
     def teams(self):
         t = sorted(self.ELO)
-        return t, t
+        return MOCK_SEASON, t, t
+
+    def data_end(self) -> str:
+        return "2025-05-25"
 
     def predict(self, req: PredictRequest) -> PredictResponse:
         h, a = req.home_team, req.away_team
@@ -228,8 +262,9 @@ def health():
 
 @app.get("/api/teams")
 def teams():
-    current, all_teams = state["backend"].teams()
-    return {"season": CURRENT_SEASON, "current": current, "all": all_teams}
+    backend = state["backend"]
+    season, current, all_teams = backend.teams()
+    return {"season": season, "current": current, "all": all_teams, "data_end": backend.data_end()}
 
 
 @app.post("/api/predict", response_model=PredictResponse)
@@ -237,9 +272,52 @@ def predict(req: PredictRequest):
     return state["backend"].predict(req)
 
 
+_METRIC_KEYS = (
+    "model", "n_samples", "accuracy", "balanced_accuracy", "macro_f1",
+    "f1_H", "f1_D", "f1_A", "draws_predicted", "log_loss", "brier_score",
+)
+
+
+def _slim_rows(rows: list[dict]) -> list[dict]:
+    return [{k: r[k] for k in _METRIC_KEYS if k in r} for r in rows]
+
+
+def _deployed_row(summary: dict) -> Optional[str]:
+    """Nombre de la fila del benchmark que corresponde al modelo que sirve la API."""
+    names = [r["model"] for r in summary.get("test_results", [])]
+    arch = summary.get("selected_architecture", "")
+    for cond in (
+        lambda n: arch and n.startswith(arch) and "Calibrado" in n and "Sin" not in n,
+        lambda n: arch and n.startswith(arch),
+        lambda n: n.startswith("Deep MLP"),
+    ):
+        hit = next((n for n in names if cond(n)), None)
+        if hit:
+            return hit
+    return None
+
+
 @app.get("/api/metrics")
 def metrics():
-    """Resumen de entrenamiento y benchmark (models/training_summary.json)."""
+    """Resumen compacto del entrenamiento y del benchmark (models/training_summary.json)."""
     path = ROOT / "models" / "training_summary.json"
     with open(path, encoding="utf-8") as f:
-        return json.load(f)
+        s = json.load(f)
+    splits = s.get("dataset_splits") or {}
+    cal = s.get("calibration") or {}
+    return {
+        "model_version": s.get("model_version"),
+        "selected_architecture": s.get("selected_architecture"),
+        "deployed_model": _deployed_row(s),
+        "epochs_trained": s.get("epochs_trained"),
+        "total_params": s.get("total_params"),
+        "n_features": splits.get("n_features"),
+        "train_seasons": splits.get("train_seasons"),
+        "val_seasons": splits.get("val_seasons"),
+        "test_seasons": splits.get("test_seasons"),
+        "temperature": cal.get("temperature"),
+        "test_results": _slim_rows(s.get("test_results", [])),
+        "prospective_results": _slim_rows(s.get("prospective_2025_26_results", [])),
+        "confusion_matrix": s.get("confusion_matrix"),
+        "confusion_matrix_norm": s.get("confusion_matrix_norm"),
+    }

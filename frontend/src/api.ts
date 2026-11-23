@@ -38,6 +38,8 @@ export interface PredictResponse {
   home_last_match: string | null
   away_last_match: string | null
   data_end: string | null
+  warnings: string[] // avisos del servicio (equipo debutante, fecha posterior a los datos…)
+  model_version: string | null
   mock: boolean
 }
 
@@ -45,20 +47,32 @@ export interface TeamsResponse {
   season: string
   current: string[]
   all: string[]
+  data_end?: string | null // fecha del último partido del historial
 }
 
 export interface ModelResult {
   model: string
+  n_samples?: number
   accuracy: number
   log_loss: number
   brier_score: number
   f1_D: number
+  draws_predicted?: number
 }
 
 export interface MetricsResponse {
+  model_version: string | null
   selected_architecture: string
+  deployed_model: string | null // fila de test_results que corresponde al modelo que sirve la API
   epochs_trained: number
+  total_params: number | null
+  n_features: number | null
+  train_seasons: string[] | null
+  val_seasons: string[] | null
+  test_seasons: string[] | null
+  temperature: number | null
   test_results: ModelResult[]
+  prospective_results: ModelResult[]
   confusion_matrix: number[][]
   confusion_matrix_norm: number[][]
 }
@@ -74,6 +88,21 @@ export class ApiRequestError extends Error {
   get retriable() {
     return this.status === 0 || this.status >= 500
   }
+}
+
+/** Fila del benchmark del modelo en uso (con respaldo para resúmenes antiguos). */
+export function deployedResult(m: MetricsResponse | null): ModelResult | null {
+  if (!m) return null
+  return (
+    m.test_results.find((r) => r.model === m.deployed_model) ??
+    m.test_results.find((r) => r.model.startsWith('Deep MLP')) ??
+    null
+  )
+}
+
+/** Partidos del conjunto de prueba: n_samples si viene, si no la suma de la matriz de confusión. */
+export function testSize(m: MetricsResponse): number {
+  return deployedResult(m)?.n_samples ?? m.confusion_matrix.flat().reduce((a, b) => a + b, 0)
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
