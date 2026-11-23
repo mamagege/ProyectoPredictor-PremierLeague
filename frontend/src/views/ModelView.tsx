@@ -1,0 +1,217 @@
+import { Check } from 'lucide-react'
+import { deployedResult, testSize, type MetricsResponse, type ModelResult } from '../api'
+import { num0, num2, pct1 } from '../lib/format'
+
+const CLASSES = ['Local', 'Empate', 'Visitante']
+
+function best(rows: ModelResult[], pick: (r: ModelResult) => number, dir: 'max' | 'min') {
+  const vals = rows.map(pick)
+  return dir === 'max' ? Math.max(...vals) : Math.min(...vals)
+}
+
+function Benchmark({ m }: { m: MetricsResponse }) {
+  const rows = m.test_results
+  const mine = deployedResult(m)
+  const leader = rows.reduce((a, b) => (b.accuracy > a.accuracy ? b : a), rows[0])
+  const beaten = mine ? rows.filter((r) => r !== mine && r.accuracy > mine.accuracy) : []
+  const cols: { label: string; hint: string; pick: (r: ModelResult) => number; fmt: (n: number) => string; dir: 'max' | 'min' }[] = [
+    { label: 'Exactitud', hint: 'más alto es mejor', pick: (r) => r.accuracy, fmt: (n) => pct1(n * 100), dir: 'max' },
+    { label: 'Log loss', hint: 'más bajo es mejor', pick: (r) => r.log_loss, fmt: (n) => n.toFixed(3).replace('.', ','), dir: 'min' },
+    { label: 'Brier', hint: 'más bajo es mejor', pick: (r) => r.brier_score, fmt: (n) => n.toFixed(3).replace('.', ','), dir: 'min' },
+    { label: 'F1 del empate', hint: 'más alto es mejor', pick: (r) => r.f1_D, fmt: (n) => pct1(n * 100), dir: 'max' },
+  ]
+  return (
+    <section aria-labelledby="bench-title" className="rounded-lg border border-line bg-panel p-5 sm:p-6">
+      <h2 id="bench-title" className="font-display text-2xl font-bold leading-tight">Comparación con otros modelos</h2>
+      <p className="mt-1 text-muted">
+        Los {num0(rows.length)} modelos se evaluaron sobre los mismos {num0(testSize(m))} partidos nunca vistos. La marca señala el
+        mejor de cada columna.
+      </p>
+      <div className="relative -mx-1 mt-4 overflow-x-auto px-1">
+        <table className="w-full min-w-[560px] border-collapse">
+          <caption className="sr-only">Métricas de cada modelo en el conjunto de prueba</caption>
+          <thead>
+            <tr className="border-b border-line text-left text-sm text-muted">
+              <th scope="col" className="py-2 pr-3 font-bold">Modelo</th>
+              {cols.map((c) => (
+                <th key={c.label} scope="col" className="px-2 py-2 text-right font-bold">
+                  {c.label}
+                  <span className="block font-normal">{c.hint}</span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => {
+              const used = r === mine
+              return (
+                <tr key={r.model} className={`border-b border-line last:border-0 ${used ? 'bg-raised' : ''}`}>
+                  <th scope="row" className="py-3 pl-2 pr-3 text-left font-bold">
+                    {r.model}
+                    {used && <span className="block text-sm font-normal text-muted">El que usa esta aplicación</span>}
+                  </th>
+                  {cols.map((c) => {
+                    const isBest = c.pick(r) === best(rows, c.pick, c.dir)
+                    return (
+                      <td key={c.label} className={`px-2 py-3 text-right ${isBest ? 'font-bold text-text' : 'text-muted'}`}>
+                        <span className="inline-flex items-center justify-end gap-1.5">
+                          {isBest && <Check aria-hidden className="size-4 text-local" />}
+                          {c.fmt(c.pick(r))}
+                          {isBest && <span className="sr-only"> (mejor)</span>}
+                        </span>
+                      </td>
+                    )
+                  })}
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-4 text-sm text-muted">
+        Las diferencias entre los modelos entrenados son pequeñas. Todos mejoran claramente al modelo ingenuo que siempre
+        predice victoria local.
+        {mine && beaten.length > 0 && (
+          <>
+            {' '}
+            En exactitud, la red queda {num2((leader.accuracy - mine.accuracy) * 100)} puntos por detrás de{' '}
+            {beaten.map((r) => r.model).join(' y ')}: con los datos disponibles, las cuotas del mercado ya recogen casi
+            toda la información previa al partido.
+          </>
+        )}
+      </p>
+    </section>
+  )
+}
+
+function Confusion({ m }: { m: MetricsResponse }) {
+  const cm = m.confusion_matrix
+  const norm = m.confusion_matrix_norm
+  const drawsMarked = cm.reduce((a, row) => a + row[1], 0)
+  const total = cm.flat().reduce((a, b) => a + b, 0)
+  return (
+    <section aria-labelledby="cm-title" className="rounded-lg border border-line bg-panel p-5 sm:p-6">
+      <h2 id="cm-title" className="font-display text-2xl font-bold leading-tight">Aciertos y errores por resultado</h2>
+      <p className="mt-1 text-muted">
+        Cada fila es lo que pasó de verdad; cada columna, lo que el modelo marcó como más probable. En cada celda: partidos y
+        porcentaje de esa fila.
+      </p>
+      <div className="relative mt-4 overflow-x-auto">
+        <table className="w-full min-w-[420px] border-separate border-spacing-1.5 text-center">
+          <caption className="sr-only">Matriz de confusión del modelo en el conjunto de prueba</caption>
+          <thead>
+            <tr className="text-sm text-muted">
+              <td />
+              {CLASSES.map((c) => (
+                <th key={c} scope="col" className="pb-1 font-bold">Marcó {c.toLowerCase()}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {cm.map((row, i) => (
+              <tr key={i}>
+                <th scope="row" className="pr-2 text-right text-sm font-bold text-muted">Real: {CLASSES[i].toLowerCase()}</th>
+                {row.map((v, j) => {
+                  const ok = i === j
+                  const tone = ok ? 'var(--color-local)' : 'var(--color-away)'
+                  return (
+                    <td
+                      key={j}
+                      className="rounded-md border border-line px-2 py-3"
+                      style={{ background: `color-mix(in srgb, ${tone} ${Math.round(norm[i][j] * 60)}%, var(--color-raised))` }}
+                    >
+                      <span className="block font-display text-2xl font-bold leading-none">{num0(v)}</span>
+                      <span className="mt-1 block text-sm">{pct1(norm[i][j] * 100)}</span>
+                    </td>
+                  )
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-4 text-sm text-muted">
+        <span className="font-bold text-local">Verde</span>: acierto. <span className="font-bold text-away">Rosa</span>: error.
+        Los empates son difíciles de anticipar:{' '}
+        {drawsMarked === 0
+          ? 'el modelo nunca marcó el empate como lo más probable (columna del medio en cero)'
+          : `el modelo marcó el empate como lo más probable solo en ${num0(drawsMarked)} de ${num0(total)} partidos (columna del medio)`}
+        , por eso conviene leer siempre las tres probabilidades y no solo el resultado destacado.
+      </p>
+    </section>
+  )
+}
+
+function Method({ m }: { m: MetricsResponse }) {
+  const span = (s: string[] | null, fallback: string) =>
+    s && s.length ? `${s[0].slice(0, 4)}–${s[s.length - 1].slice(0, 2)}${s[s.length - 1].slice(5)}` : fallback
+  const train = span(m.train_seasons, '2000–2017')
+  const val = span(m.val_seasons, '2017–2021')
+  const test = span(m.test_seasons, '2021–2025')
+  const prosp = m.prospective_results.find((r) => r.model === m.deployed_model)
+  const items = [
+    ['Partidos de prueba', `${num0(testSize(m))} partidos (${test}) que el modelo nunca vio`],
+    ['Orden cronológico', `Entrenamiento ${train}, validación ${val}, prueba ${test}: nada del futuro entra al pasado`],
+    [
+      'Variables de entrada',
+      `${m.n_features ?? 40} datos previos al partido: Elo, forma, goles, tiros, descanso, historial directo y mercado`,
+    ],
+    [
+      'Red neuronal',
+      `${m.selected_architecture}, salida de tres probabilidades; ${num0(m.epochs_trained)} épocas de entrenamiento` +
+        (m.total_params ? `, ${num0(m.total_params)} parámetros` : ''),
+    ],
+    ...(m.temperature
+      ? [['Calibración', `Temperature scaling (T = ${num2(m.temperature)}) ajustado en validación para que los porcentajes sean fiables`]]
+      : []),
+    ...(prosp
+      ? [['Temporada 2025/26', `Prueba extra fuera de muestra: ${pct1(prosp.accuracy * 100)} de acierto en ${num0(prosp.n_samples ?? 0)} partidos`]]
+      : []),
+  ]
+  return (
+    <section aria-labelledby="method-title" className="rounded-lg border border-line bg-panel p-5 sm:p-6">
+      <h2 id="method-title" className="font-display text-2xl font-bold leading-tight">Cómo se construyó</h2>
+      <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+        {items.map(([t, d]) => (
+          <div key={t}>
+            <dt className="font-bold">{t}</dt>
+            <dd className="mt-0.5 text-muted">{d}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  )
+}
+
+export default function ModelView({ metrics, error }: { metrics: MetricsResponse | null; error: string | null }) {
+  const mlp = deployedResult(metrics)
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
+      <header>
+        <h1 className="font-display text-4xl font-bold leading-tight sm:text-5xl">Qué tan bien pronostica</h1>
+        {mlp && (
+          <p className="mt-3 max-w-[65ch] text-lg text-muted">
+            Acierta el resultado en {pct1(mlp.accuracy * 100)} de los partidos nunca vistos, frente al{' '}
+            {pct1((metrics!.test_results[0].accuracy) * 100)} de un modelo ingenuo que siempre elige victoria local. Más
+            que acertar siempre, entrega probabilidades: su log loss es {num2(mlp.log_loss)}.
+          </p>
+        )}
+      </header>
+      {error && (
+        <p role="alert" className="rounded-md border border-danger/50 bg-danger/10 px-3 py-2 text-danger">
+          No se pudieron cargar las métricas: {error}
+        </p>
+      )}
+      {!metrics && !error && <p className="text-muted">Cargando métricas…</p>}
+      {metrics && (
+        <>
+          <Benchmark m={metrics} />
+          <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-5 xl:grid-cols-2">
+            <Confusion m={metrics} />
+            <Method m={metrics} />
+          </div>
+        </>
+      )}
+    </div>
+  )
+}

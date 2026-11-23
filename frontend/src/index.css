@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+/* Tipografía autoalojada (Barlow / Barlow Semi Condensed) */
+@font-face { font-family: "Barlow"; font-style: normal; font-weight: 400; font-display: swap; src: url("/fonts/barlow-400-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Barlow"; font-style: normal; font-weight: 700; font-display: swap; src: url("/fonts/barlow-700-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Barlow Semi Condensed"; font-style: normal; font-weight: 400; font-display: swap; src: url("/fonts/barlow-semi-condensed-400-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Barlow Semi Condensed"; font-style: normal; font-weight: 700; font-display: swap; src: url("/fonts/barlow-semi-condensed-700-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
+@theme {
+  --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Barlow Semi Condensed", "Barlow", ui-sans-serif, sans-serif;
+
+  /* Azul tinta nocturno: escena = sofá, noche previa al partido, móvil */
+  --color-ground: #07142a;
+  --color-panel: #0b1d38;
+  --color-raised: #12294b;
+  --color-line: #28466f;
+  --color-text: #e6eef9;
+  --color-muted: #a3b6d1;
+
+  /* Escala tipo radar: un tono por desenlace */
+  --color-local: #3fd8c8;
+  --color-draw: #f4c95d;
+  --color-away: #ff7a93;
+  --color-action: #8dbbff;
+  --color-danger: #ff9aa9;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  background: var(--color-ground);
+  scrollbar-color: var(--color-line) var(--color-ground);
+}
+
+body {
+  margin: 0;
+  background: var(--color-ground);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  text-underline-offset: 0.2em;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-action) 40%, transparent);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-action);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+input, select, button {
+  font: inherit;
+  color: inherit;
+}
+
+input::placeholder {
+  color: color-mix(in srgb, var(--color-muted) 80%, transparent);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+  cursor: pointer;
+}
+
+/* Movimiento: las barras crecen una vez al llegar un pronóstico nuevo */
+@keyframes grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes hold-flash {
+  from { background-color: color-mix(in srgb, var(--color-action) 45%, transparent); }
+  to { background-color: color-mix(in srgb, var(--color-action) 14%, transparent); }
+}
+
+.bar-fill {
+  transform-origin: left center;
+  animation: grow-x 700ms var(--ease-out-expo) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+.delta-chip {
+  animation: hold-flash 900ms var(--ease-out-expo) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-fill, .delta-chip { animation: none; }
+}
