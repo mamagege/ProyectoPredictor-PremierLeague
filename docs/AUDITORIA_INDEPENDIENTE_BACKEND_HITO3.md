@@ -27,8 +27,8 @@ Se ejecutó una auditoría técnica independiente y de aceptación sobre el Back
 
 | Documento / Fuente | Ubicación | Naturaleza | Hallazgos documentales relevantes |
 |---|---|---|---|
-| Informe oficial del Hito 2 | [Hito2Proyecto.pdf](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/Hito2Proyecto.pdf) (14 págs.) | Entregable académico previo (Grupo 04, 09-oct-2026) | Define problema multiclase 1X2 prepartido en EPL (pese a errata `"Fútbol Español"` en portada pág. 1), causalidad temporal estricta, zero data leakage, calibración probabilística, servicio modular `prediction_service.py`, Deep MLP Softmax y objetivos cuantitativos (superar Dummy y modelos de referencia, Log Loss `< 1.00`, Brier `< 0.60`, sensibilidad al empate). |
-| Documentación técnica del backend | [README.md](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/README.md) (125 líneas) | Documentación técnica en `feat/hito3-backend` | Documenta arquitectura `src/`, flujo de comandos (`train`, `prediction_service.py`, `uvicorn src.api:app`, `unittest`), endpoints de FastAPI y tablas de resultados en Val, Test y Prospectivo `2025/26`. |
+| Informe oficial del Hito 2 | [Hito2Proyecto.pdf](Hito2Proyecto.pdf) (14 págs.) | Entregable académico previo (Grupo 04, 09-oct-2026) | Define problema multiclase 1X2 prepartido en EPL (pese a errata `"Fútbol Español"` en portada pág. 1), causalidad temporal estricta, zero data leakage, calibración probabilística, servicio modular `prediction_service.py`, Deep MLP Softmax y objetivos cuantitativos (superar Dummy y modelos de referencia, Log Loss `< 1.00`, Brier `< 0.60`, sensibilidad al empate). |
+| Documentación técnica del backend | [README.md](../README.md) (125 líneas) | Documentación técnica en `feat/hito3-backend` | Documenta arquitectura `src/`, flujo de comandos (`train`, `prediction_service.py`, `uvicorn src.api:app`, `unittest`), endpoints de FastAPI y tablas de resultados en Val, Test y Prospectivo `2025/26`. |
 | Guía oficial / Rúbrica del Hito 3 | **NO DISPONIBLE** | Requisito normativo faltante | Ausente en la raíz, subdirectorios, historial Git y metadatos del workspace. |
 | Retroalimentación docente del Hito 2 | **NO DISPONIBLE** | Requisito normativo faltante | No existe archivo de comentarios o correcciones solicitadas para el Hito 3. |
 
@@ -119,15 +119,15 @@ Datasets CSV (datasets/)
 
 | Componente | Archivo | Responsabilidad real | Estado Hito 2 vs Hito 3 |
 |---|---|---|---|
-| Configuración | [src/config.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/config.py) (185 líneas) | Rutas portables, `SEED=42`, splits temporales, `TEAM_ALIASES` y normalización de equipos/temporadas. | Nuevo (Hito 3) |
-| Datos | [src/data.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/data.py) (189 líneas) | Unificación de 9,900 partidos (`2000–2026`) y búsqueda `EloLookup`. | Nuevo (Hito 3) |
-| Features y preproc. | [src/features.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/features.py) (606 líneas) | Motor único de 45 variables prepartido y `CausalPreprocessor` con fallback Elo→Mercado. | Nuevo (Hito 3) |
-| Modelos | [src/models.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/models.py) (112 líneas) | Determinismo y arquitecturas Keras (`Deep_MLP_Hito2`, `Compact_Deep_MLP`, `Residual_Deep_MLP`). | Nuevo (Hito 3) |
-| Calibración | [src/calibration.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/calibration.py) (235 líneas) | `Temperature Scaling`, pesos Bayesianos, `ECE`/`MCE` y `Brier Skill Score`. | Nuevo (Hito 3) |
-| Evaluación | [src/evaluate.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/evaluate.py) (112 líneas) | Evaluación integral por split y modo Bayesiano. | Nuevo (Hito 3) |
-| Entrenamiento | [src/train.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/train.py) (514 líneas) | Orquestación CLI reproducible, tuning en Val, ablación sin cuotas y guardado atómico. | Nuevo (Hito 3) |
-| Servicio Python | [prediction_service.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/prediction_service.py) (471 líneas) | Fachada de inferencia con caché singleton, validación y `top_factors`. | Reescrito (Hito 2 -> Hito 3) |
-| API HTTP | [src/api.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/api.py) (185 líneas) | Servicio REST FastAPI con precarga en `lifespan` y CORS abierto. | Nuevo (Hito 3) |
+| Configuración | [src/config.py](../src/config.py) (185 líneas) | Rutas portables, `SEED=42`, splits temporales, `TEAM_ALIASES` y normalización de equipos/temporadas. | Nuevo (Hito 3) |
+| Datos | [src/data.py](../src/data.py) (189 líneas) | Unificación de 9,900 partidos (`2000–2026`) y búsqueda `EloLookup`. | Nuevo (Hito 3) |
+| Features y preproc. | [src/features.py](../src/features.py) (606 líneas) | Motor único de 45 variables prepartido y `CausalPreprocessor` con fallback Elo→Mercado. | Nuevo (Hito 3) |
+| Modelos | [src/models.py](../src/models.py) (112 líneas) | Determinismo y arquitecturas Keras (`Deep_MLP_Hito2`, `Compact_Deep_MLP`, `Residual_Deep_MLP`). | Nuevo (Hito 3) |
+| Calibración | [src/calibration.py](../src/calibration.py) (235 líneas) | `Temperature Scaling`, pesos Bayesianos, `ECE`/`MCE` y `Brier Skill Score`. | Nuevo (Hito 3) |
+| Evaluación | [src/evaluate.py](../src/evaluate.py) (112 líneas) | Evaluación integral por split y modo Bayesiano. | Nuevo (Hito 3) |
+| Entrenamiento | [src/train.py](../src/train.py) (514 líneas) | Orquestación CLI reproducible, tuning en Val, ablación sin cuotas y guardado atómico. | Nuevo (Hito 3) |
+| Servicio Python | [prediction_service.py](../prediction_service.py) (471 líneas) | Fachada de inferencia con caché singleton, validación y `top_factors`. | Reescrito (Hito 2 -> Hito 3) |
+| API HTTP | [src/api.py](../src/api.py) (185 líneas) | Servicio REST FastAPI con precarga en `lifespan` y CORS abierto. | Nuevo (Hito 3) |
 | Artefactos | `models/` (6 archivos) | Modelo Keras `Residual_Deep_MLP_3L` (6,189 params), `preprocessor.pkl`, `scaler.pkl`, `feature_names.json`, `calibration.json`, `training_summary.json`. | Regenerado (Hito 3) |
 
 ---
@@ -140,46 +140,46 @@ Datasets CSV (datasets/)
 
 ### REQ-BK-01 — Ingesta y consolidación íntegra de datos EPL
 - **Estado:** **`DEFECTUOSO`**
-- **Implementación:** [src/data.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/data.py#L21-L189).
+- **Implementación:** [src/data.py](../src/data.py#L21-L189).
 - **Lo positivo verificado:** Consolida exactamente 9,500 partidos de `PremierLeague.csv` (`2000/01–2024/25`, 25 temporadas × 380 exactos) más 400 de `Matches.csv` (`2025/26`: 380; `2026/27`: 20), con 0 duplicados y 0 nulos de Elo.
-- **Defecto demostrado (`HAL-03`):** En [src/data.py:29-38](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/data.py#L29-L38), `load_elo_ratings()` normaliza `"Nottm Forest"` → `"Nott'm Forest"` en la línea 30 **antes** de ordenar por `["club", "date"]` y aplicar `.drop_duplicates(subset=["club", "date"], keep="last")` en la línea 35. En el archivo crudo `EloRatings.csv`, coexisten **dos series para Nottingham Forest**:
+- **Defecto demostrado (`HAL-03`):** En [src/data.py:29-38](../src/data.py#L29-L38), `load_elo_ratings()` normaliza `"Nottm Forest"` → `"Nott'm Forest"` en la línea 30 **antes** de ordenar por `["club", "date"]` y aplicar `.drop_duplicates(subset=["club", "date"], keep="last")` en la línea 35. En el archivo crudo `EloRatings.csv`, coexisten **dos series para Nottingham Forest**:
   - `"Nottm Forest"` (`547` filas, `2000-07-01` a `2026-09-01`), cuyo valor queda congelado en **`1731.5`** desde `2025-01-01` hasta `2026-09-01`.
   - `"Nott'm Forest"` (`41` filas, `2025-01-01` a `2026-09-01`), que contiene los ratings reales actualizados (`1758.31`–`1792.37`).
   Al reemplazar el nombre antes de deduplicar y estar `"Nottm Forest"` después de `"Nott'm Forest"` en el CSV, `keep="last"` **elimina sistemáticamente los 41 ratings reales y conserva los congelados a `1731.5`**. Esto se comprobó tanto en `Matches.csv` (`2025-11-01: 1758.31 vs 1731.5`, `2026-02-01: 1781.43 vs 1731.5`, `2026-03-15: 1759.01 vs 1731.5`) como en `GET /teams/Nott'm Forest/stats` (`"elo": 1731.5` al `2026-09-07`).
 
 ### REQ-BK-02 — Ingeniería de características causal y paridad entrenamiento/inferencia
 - **Estado:** **`PARCIALMENTE CUMPLIDO`**
-- **Implementación:** [src/features.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/features.py#L1-L606), [prediction_service.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/prediction_service.py#L325-L341).
+- **Implementación:** [src/features.py](../src/features.py#L1-L606), [prediction_service.py](../prediction_service.py#L325-L341).
 - **Verificado:** Las pruebas de paridad `test_exact_batch_vs_single_inference_parity` y `test_season_stats_reset_on_matchday_one` pasan con `atol=1e-9` sobre 7 partidos variados (incluido Jornada 1 `2024-08-17` y julio `2020`).
 - **Incumplimientos parciales encontrados:**
-  1. **Fuga menor de rangos de temporada (`HAL-06`):** En [src/features.py:505-510](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/features.py#L505-L510), `season_bounds = df_history.groupby("Season")["MatchDate"].agg(["min", "max"])` lee todo `df_history` sin filtrar `MatchDate < target_ts`, conociendo el rango completo de fin de temporada incluso si la fecha objetivo es anterior al último partido cargado.
+  1. **Fuga menor de rangos de temporada (`HAL-06`):** En [src/features.py:505-510](../src/features.py#L505-L510), `season_bounds = df_history.groupby("Season")["MatchDate"].agg(["min", "max"])` lee todo `df_history` sin filtrar `MatchDate < target_ts`, conociendo el rango completo de fin de temporada incluso si la fecha objetivo es anterior al último partido cargado.
   2. **Asimetría con debutantes (`HAL-07`):** En entrenamiento (`FeatureStateEngine.compute_batch_features`), un equipo en su debut EPL (ej. `Brentford` el `2021-08-13`) recibe defaults neutros (`1.3`, `11.5`, `4.2`, `7.0`) y se entrena/evalúa normalmente; sin embargo, `prediction_service.py:334-339` rechaza con `HTTP 404` (`insufficient_history`) cualquier consulta donde `home_history_matches == 0` o `away_history_matches == 0`.
 
 ### REQ-BK-03 — Partición temporal estricta y aislamiento del escalador
 - **Estado:** **`CUMPLIDO Y VERIFICADO`**
-- **Implementación:** [src/config.py:42-53](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/config.py#L42-L53), [src/features.py:109-143](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/features.py#L109-L143), [src/train.py:173-199](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/train.py#L173-L199).
+- **Implementación:** [src/config.py:42-53](../src/config.py#L42-L53), [src/features.py:109-143](../src/features.py#L109-L143), [src/train.py:173-199](../src/train.py#L173-L199).
 - **Evidencia:** Partición estricta `Train: 6,460 (2000/01–2016/17)`, `Val: 1,520 (2017/18–2020/21)`, `Test: 1,520 (2021/22–2024/25)`, `Prospectivo: 380 (2025/26)`. Inspección directa de `models/scaler.pkl` confirma `n_features_in_ = 45` y `n_samples_seen_ = 6460.0`. `test_zero_leakage_in_preprocessor` corrompe Val/Test (`HomeElo=9999.0`, `Odds_H=1.05`) y demuestra invariancia exacta (`atol=1e-12`).
 
 ### REQ-BK-04 — Modelo neuronal multiclase Softmax entrenado y reproducible
 - **Estado:** **`CUMPLIDO Y VERIFICADO`**
-- **Implementación:** [src/models.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/models.py#L16-L112), [src/train.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/train.py#L81-L135).
+- **Implementación:** [src/models.py](../src/models.py#L16-L112), [src/train.py](../src/train.py#L81-L135).
 - **Evidencia:** `models/best_deep_mlp.keras` (`142,227` bytes) carga limpio como `Residual_Deep_MLP_3L` con `input=(None, 45)`, `output=(None, 3)` (`Output_Softmax`), `6,189` parámetros. La reevaluación independiente sobre `Test` frente a `models/training_summary.json` arrojó diferencia **`0.0`** en Accuracy (`0.567105`), Log Loss (`0.9516xx`), Brier Score (`0.5631xx`) y F1-D Bayesiano (`0.275281`).
 
 ### REQ-BK-05 — Desempeño del modelo neuronal superando a los modelos de referencia
 - **Estado:** **`PARCIALMENTE CUMPLIDO`**
-- **Evidencia contrastada en [models/training_summary.json](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/models/training_summary.json):**
+- **Evidencia contrastada en [models/training_summary.json](../models/training_summary.json):**
   - En **Test (`2021/22–2024/25`, $n=1,520$):** `Residual_Deep_MLP_3L (Calibrado T=1.172)` logra `Acc=56.71%`, `Log Loss=0.9516`, `Brier=0.5631`, `Macro-F1=45.47%`, superando a **Dummy** (`44.54%`, `1.0687`, `0.6465`), **Deep MLP Hito 2** (`55.72%`, `0.9569`, `0.5674`) e **HistGradientBoosting** (`56.51%`, `0.9541`, `0.5645`). **Sin embargo, NO supera** en exactitud ni Log Loss/Brier a **Regresión Logística `C=0.01`** (`Acc=56.91%`, `LL=0.9495`, `Brier=0.5621`) ni a **Bet365 implícito** (`Acc=56.91%`, `LL=0.9458`, `Brier=0.5598`).
   - En **Prospectivo (`2025/26`, $n=380$):** `Residual_Deep_MLP_3L` (`LL=1.0317`, `Brier=0.6187`, `ECE=0.0501`) supera a **Regresión Logística** (`LL=1.0376`, `Brier=0.6231`, `ECE=0.0745`) e **HistGradientBoosting** (`LL=1.0388`, `Brier=0.6234`, `ECE=0.0583`) en calibración y error probabilístico, aunque queda por debajo de **Bet365** (`Acc=48.95%` vs `46.84%`, `LL=1.0185`) y de Regresión Logística en `Accuracy` (`48.68%` vs `46.84%`).
   - Además, `Hito2Proyecto.pdf` (pág. 6 y 10) sigue declarando `40` características y arquitectura `128-64-32-16`, mientras el modelo actual usa `45` características y arquitectura `Residual_Deep_MLP_3L` (`64-32-16` + skip lineal).
 
 ### REQ-BK-06 — Calibración probabilística y sensibilidad al empate
 - **Estado:** **`CUMPLIDO Y VERIFICADO`**
-- **Implementación:** [src/calibration.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/calibration.py#L14-L235), [src/evaluate.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/evaluate.py#L24-L112).
+- **Implementación:** [src/calibration.py](../src/calibration.py#L14-L235), [src/evaluate.py](../src/evaluate.py#L24-L112).
 - **Evidencia:** `Temperature Scaling` (`T = 1.172273`) y multiplicadores Bayesianos (`[1.0, 1.49, 1.08]`) ajustados estrictamente sobre `Val`. Reduce `Log Loss` en `Val` (`0.9579 -> 0.9544`), `Test` (`0.9525 -> 0.9516`) y `2025/26` (`1.0405 -> 1.0317`), reduciendo `ECE` en `2025/26` de `0.0825` a `0.0501`. Con decisión Bayesiana, `F1-D` sube a **`27.53%`** en Test (`Macro-F1 = 48.39%`, el mayor del benchmark) y **`26.67%`** en `2025/26` (`Macro-F1 = 42.93%`). *(Nota técnica menor: en Test el `top_label_ece` pasa de `0.0282` a `0.0312` tras `T=1.172`, aunque mejora `Log Loss` y `Brier Score`).*
 
 ### REQ-BK-07 — Servicio predictivo Python confiable (`prediction_service.py`)
 - **Estado:** **`DEFECTUOSO`**
-- **Implementación:** [prediction_service.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/prediction_service.py#L75-L457).
+- **Implementación:** [prediction_service.py](../prediction_service.py#L75-L457).
 - **Defectos comprobados:**
   1. **`TypeError` no capturado (`HAL-02`):** `_parse_date("2024-04-23T15:00:00Z")` (líneas 201–210) retorna un `Timestamp` con zona horaria `UTC`, porque `.normalize()` conserva `tz=UTC`. Luego `FeatureStateEngine.compute_single_match_features` compara `df_history["MatchDate"] < target_ts` (`datetime64[ns]` naive vs `Timestamp` tz-aware), lanzando `TypeError: Invalid comparison between dtype=datetime64[ns] and Timestamp`.
   2. **Bloqueo de debutantes (`HAL-07`):** Rechaza partidos de debut EPL (`Brentford`, `2021-08-13`) con `insufficient_history`.
@@ -188,7 +188,7 @@ Datasets CSV (datasets/)
 
 ### REQ-BK-08 — API REST FastAPI (`src/api.py`) con contratos, validaciones y manejo de errores HTTP
 - **Estado:** **`DEFECTUOSO`**
-- **Implementación:** [src/api.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/api.py#L15-L185).
+- **Implementación:** [src/api.py](../src/api.py#L15-L185).
 - **Defectos comprobados mediante `TestClient(app, raise_server_exceptions=False)`:**
   1. **`HTTP 500 Internal Server Error` (`HAL-02`):** `POST /predict` con `match_date="2024-04-23T15:00:00Z"` y `GET /teams/arsenal/stats?match_date=2024-04-23T15:00:00Z` fallan con `HTTP 500` porque `prediction_service.py` lanza `TypeError` y `src/api.py:128` solo captura `ValueError`.
   2. **Validación incompleta de cuotas extremas (`HAL-10`):** `OddsInput` solo exige `gt=1.0`, aceptando `1e308` (`HTTP 200`), lo que vuelve `1/odds` indistinguible de `0.0`.
@@ -199,16 +199,16 @@ Datasets CSV (datasets/)
 - **Evidencia medida directamente (`TestClient` sobre servidor precargado):**
   - `POST /predict` promedio (5 ejecuciones): **`347.0 ms`** por solicitud.
   - `POST /predict/batch` (50 partidos): **`16,726.6 ms`** (~16.73 segundos).
-- **Causa en código:** En cada predicción individual, `FeatureStateEngine.compute_single_match_features` ([src/features.py:512-565](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/features.py#L512-L565)) recorre los ~900 partidos históricos de cada equipo con `itertuples()` desde 2000 aunque solo necesita los últimos 5 partidos (`k=5`), la temporada vigente y los últimos 10 H2H; y `predict_batch` ([src/api.py:158-173](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/api.py#L158-L173)) ejecuta 50 llamadas secuenciales a `model.predict()` en lugar de inferencia en lote.
+- **Causa en código:** En cada predicción individual, `FeatureStateEngine.compute_single_match_features` ([src/features.py:512-565](../src/features.py#L512-L565)) recorre los ~900 partidos históricos de cada equipo con `itertuples()` desde 2000 aunque solo necesita los últimos 5 partidos (`k=5`), la temporada vigente y los últimos 10 H2H; y `predict_batch` ([src/api.py:158-173](../src/api.py#L158-L173)) ejecuta 50 llamadas secuenciales a `model.predict()` en lugar de inferencia en lote.
 
 ### REQ-BK-10 — Persistencia atómica y sincronización de artefactos
 - **Estado:** **`CUMPLIDO Y VERIFICADO`**
-- **Implementación:** [src/train.py:45-78](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/train.py#L45-L78), `models/`.
+- **Implementación:** [src/train.py:45-78](../src/train.py#L45-L78), `models/`.
 - **Evidencia:** Escritos mediante `tempfile.mkstemp` + `os.replace`. Se comprobó que `models/` contiene únicamente los 6 artefactos sincronizados (`best_deep_mlp.keras`, `calibration.json`, `feature_names.json`, `preprocessor.pkl`, `scaler.pkl`, `training_summary.json`), que `preprocessor.feature_names == feature_names.json`, que `scaler == preprocessor.scaler_`, y que los 2 modelos huérfanos anteriores fueron eliminados.
 
 ### REQ-BK-11 — Gestión reproducible de dependencias
 - **Estado:** **`CUMPLIDO Y VERIFICADO`**
-- **Implementación:** [requirements.txt](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/requirements.txt).
+- **Implementación:** [requirements.txt](../requirements.txt).
 - **Evidencia:** Fija exactamente las 11 librerías y versiones presentes en el entorno (`numpy==2.3.5`, `pandas==2.3.3`, `scipy==1.17.1`, `scikit-learn==1.9.0`, `tensorflow==2.21.0`, `keras==3.15.1`, `joblib==1.5.3`, `fastapi==0.139.2`, `uvicorn==0.51.0`, `pydantic==2.12.0`, `httpx==0.28.1`).
 
 ### REQ-BK-12 — Suite de pruebas automatizadas y cobertura de bordes
@@ -311,19 +311,19 @@ Comparación directa de `feat/hito3-backend` (`e6136f6`) frente a `main` (`fe7eb
 | `REQ-H3-01` | Especificación funcional oficial Hito 3 | No verificable | N/A (falta doc) | Ninguna | Búsqueda completa repo | **BLOQUEADO** | Falta guía oficial Hito 3 |
 | `REQ-H3-02` | Rúbrica y umbrales Hito 3 | No verificable | N/A (falta doc) | Ninguna | Búsqueda completa repo | **BLOQUEADO** | Falta rúbrica Hito 3 |
 | `REQ-H3-03` | Correcciones feedback docente Hito 2 | No verificable | N/A (falta doc) | Ninguna | Búsqueda completa repo | **BLOQUEADO** | Falta retroalimentación Hito 2 |
-| `REQ-BK-01` | Ingesta y consolidación EPL íntegra | Parcialmente rota en Elo | [src/data.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/data.py) | `test_data.py` + probe CSV | 9,900 partidos; pero 41 Elos de `Nott'm Forest` congelados en `1731.5` | **DEFECTUOSO** | Bug `drop_duplicates(keep='last')` tras reemplazar nombre |
-| `REQ-BK-02` | Features causales y paridad Train=Inf | Implementado con brechas | [src/features.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/features.py), [prediction_service.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/prediction_service.py) | `test_features.py` + probe debut | Paridad `atol=1e-9`; fuga menor en `season_bounds`; debutantes bloqueados | **PARCIALMENTE CUMPLIDO** | Falta filtrar `MatchDate < target_ts` en `season_bounds` y unificar debutantes |
-| `REQ-BK-03` | Split cronológico y `StandardScaler` Train | Completo | [src/config.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/config.py), [src/features.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/features.py) | `test_features.py` | `n_samples_seen_ == 6460`, invarianza ante corrupción de Test | **CUMPLIDO Y VERIFICADO** | Sin observaciones bloqueantes |
-| `REQ-BK-04` | Modelo Deep MLP Softmax reproducible | Completo | [src/models.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/models.py), [src/train.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/train.py) | Check de reproducción | `best_deep_mlp.keras` reproduce `0.0` diff contra `training_summary.json` | **CUMPLIDO Y VERIFICADO** | `Residual_Deep_MLP_3L` (6,189 params) |
-| `REQ-BK-05` | Superar baselines (compromiso Hito 2) | Supera varios, no a todos | [src/train.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/train.py), [models/training_summary.json](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/models/training_summary.json) | Evaluación reproducible | En Test supera Dummy/Hito2/HGB, pero pierde vs LogReg y Bet365 | **PARCIALMENTE CUMPLIDO** | En 2025/26 sí supera a LogReg y HGB en LL/Brier/ECE |
-| `REQ-BK-06` | Calibración y sensibilidad al empate | Completo | [src/calibration.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/calibration.py), [src/evaluate.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/evaluate.py) | `test_calibration.py` + `training_summary.json` | `T=1.172`, pesos `[1.0, 1.49, 1.08]` en Val; Test `F1-D=27.53%`, `MacF1=48.39%` | **CUMPLIDO Y VERIFICADO** | En Test `top_label_ece` sube levemente `0.0282->0.0312` |
-| `REQ-BK-07` | Servicio predictivo Python confiable | Con crash tz-aware y regresiones | [prediction_service.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/prediction_service.py) | `test_service.py` + probes | Lanza `TypeError` no capturado con `"2024-04-23T15:00:00Z"` | **DEFECTUOSO** | Crashea en fechas ISO con zona horaria |
-| `REQ-BK-08` | API REST FastAPI y manejo HTTP | Con `HTTP 500` tz-aware y cota `odds` | [src/api.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/api.py) | `test_api.py` + probes `TestClient` | Devuelve `HTTP 500` en `/predict` y `/teams/.../stats` con `Z`; acepta `1e308` | **DEFECTUOSO** | Violación crítica de contrato REST ante fechas UTC |
-| `REQ-BK-09` | Rendimiento y latencia operativa | O(N) por fila en inferencia | [src/features.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/features.py), [src/api.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/api.py) | Benchmark `TestClient` | `347.0 ms` (`/predict`), `16,726.6 ms` (`/predict/batch` 50) | **DEFECTUOSO** | Lote 50 toma ~16.7 s en una sola petición |
-| `REQ-BK-10` | Persistencia atómica y sincronización | Completo | [src/train.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/train.py), `models/` | Inspección binaria/JSON | 6 archivos sincronizados, huérfanos eliminados | **CUMPLIDO Y VERIFICADO** | Sin observaciones |
-| `REQ-BK-11` | Gestión reproducible de dependencias | Completo | [requirements.txt](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/requirements.txt) | Verificación de versiones | 11 paquetes fijados exactos | **CUMPLIDO Y VERIFICADO** | Sin `pip-audit` de CVEs |
+| `REQ-BK-01` | Ingesta y consolidación EPL íntegra | Parcialmente rota en Elo | [src/data.py](../src/data.py) | `test_data.py` + probe CSV | 9,900 partidos; pero 41 Elos de `Nott'm Forest` congelados en `1731.5` | **DEFECTUOSO** | Bug `drop_duplicates(keep='last')` tras reemplazar nombre |
+| `REQ-BK-02` | Features causales y paridad Train=Inf | Implementado con brechas | [src/features.py](../src/features.py), [prediction_service.py](../prediction_service.py) | `test_features.py` + probe debut | Paridad `atol=1e-9`; fuga menor en `season_bounds`; debutantes bloqueados | **PARCIALMENTE CUMPLIDO** | Falta filtrar `MatchDate < target_ts` en `season_bounds` y unificar debutantes |
+| `REQ-BK-03` | Split cronológico y `StandardScaler` Train | Completo | [src/config.py](../src/config.py), [src/features.py](../src/features.py) | `test_features.py` | `n_samples_seen_ == 6460`, invarianza ante corrupción de Test | **CUMPLIDO Y VERIFICADO** | Sin observaciones bloqueantes |
+| `REQ-BK-04` | Modelo Deep MLP Softmax reproducible | Completo | [src/models.py](../src/models.py), [src/train.py](../src/train.py) | Check de reproducción | `best_deep_mlp.keras` reproduce `0.0` diff contra `training_summary.json` | **CUMPLIDO Y VERIFICADO** | `Residual_Deep_MLP_3L` (6,189 params) |
+| `REQ-BK-05` | Superar baselines (compromiso Hito 2) | Supera varios, no a todos | [src/train.py](../src/train.py), [models/training_summary.json](../models/training_summary.json) | Evaluación reproducible | En Test supera Dummy/Hito2/HGB, pero pierde vs LogReg y Bet365 | **PARCIALMENTE CUMPLIDO** | En 2025/26 sí supera a LogReg y HGB en LL/Brier/ECE |
+| `REQ-BK-06` | Calibración y sensibilidad al empate | Completo | [src/calibration.py](../src/calibration.py), [src/evaluate.py](../src/evaluate.py) | `test_calibration.py` + `training_summary.json` | `T=1.172`, pesos `[1.0, 1.49, 1.08]` en Val; Test `F1-D=27.53%`, `MacF1=48.39%` | **CUMPLIDO Y VERIFICADO** | En Test `top_label_ece` sube levemente `0.0282->0.0312` |
+| `REQ-BK-07` | Servicio predictivo Python confiable | Con crash tz-aware y regresiones | [prediction_service.py](../prediction_service.py) | `test_service.py` + probes | Lanza `TypeError` no capturado con `"2024-04-23T15:00:00Z"` | **DEFECTUOSO** | Crashea en fechas ISO con zona horaria |
+| `REQ-BK-08` | API REST FastAPI y manejo HTTP | Con `HTTP 500` tz-aware y cota `odds` | [src/api.py](../src/api.py) | `test_api.py` + probes `TestClient` | Devuelve `HTTP 500` en `/predict` y `/teams/.../stats` con `Z`; acepta `1e308` | **DEFECTUOSO** | Violación crítica de contrato REST ante fechas UTC |
+| `REQ-BK-09` | Rendimiento y latencia operativa | O(N) por fila en inferencia | [src/features.py](../src/features.py), [src/api.py](../src/api.py) | Benchmark `TestClient` | `347.0 ms` (`/predict`), `16,726.6 ms` (`/predict/batch` 50) | **DEFECTUOSO** | Lote 50 toma ~16.7 s en una sola petición |
+| `REQ-BK-10` | Persistencia atómica y sincronización | Completo | [src/train.py](../src/train.py), `models/` | Inspección binaria/JSON | 6 archivos sincronizados, huérfanos eliminados | **CUMPLIDO Y VERIFICADO** | Sin observaciones |
+| `REQ-BK-11` | Gestión reproducible de dependencias | Completo | [requirements.txt](../requirements.txt) | Verificación de versiones | 11 paquetes fijados exactos | **CUMPLIDO Y VERIFICADO** | Sin `pip-audit` de CVEs |
 | `REQ-BK-12` | Pruebas automatizadas y cobertura bordes | Incompleta en bordes críticos | `tests/` | `unittest` (26 OK) vs probes | Faltan tests de tz-aware, Elo Forest, debutantes, latencia, concurrencia | **PARCIALMENTE CUMPLIDO** | 26 pruebas existentes pasan, pero dejaron bugs sin detectar |
-| `REQ-BK-13` | Ausencia de regresiones vs Hito 2 | Rompe contrato Hito 2 | [prediction_service.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/prediction_service.py), [Proyecto_Red_Neuronal_Profunda_EPL.ipynb](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/Proyecto_Red_Neuronal_Profunda_EPL.ipynb) | Diff + scan estático | 7 atributos/métodos removidos, 2 claves JSON cambiadas, notebook incompatible | **DEFECTUOSO** | Riesgo de sobrescribir modelo si se corre notebook |
+| `REQ-BK-13` | Ausencia de regresiones vs Hito 2 | Rompe contrato Hito 2 | [prediction_service.py](../prediction_service.py), [Proyecto_Red_Neuronal_Profunda_EPL.ipynb](../notebooks/Proyecto_Red_Neuronal_Profunda_EPL.ipynb) | Diff + scan estático | 7 atributos/métodos removidos, 2 claves JSON cambiadas, notebook incompatible | **DEFECTUOSO** | Riesgo de sobrescribir modelo si se corre notebook |
 
 ### Resumen cuantitativo de la matriz
 - **Total de requisitos Backend listados:** **16** (100.00%)
@@ -354,7 +354,7 @@ Comparación directa de `feat/hito3-backend` (`e6136f6`) frente a `main` (`fe7eb
 ### HAL-02 — `TypeError` no controlado y `HTTP 500` ante fechas ISO-8601 con zona horaria
 - **Descripción:** Fechas válidas ISO-8601 con sufijo `Z` o desplazamiento horario (ej. `"2024-04-23T15:00:00Z"`, común en JavaScript/TypeScript `new Date().toISOString()`) hacen fallar `prediction_service.py` con `TypeError` y provocan `HTTP 500 Internal Server Error` en FastAPI.
 - **Evidencia:** Prueba adversarial `TestClient`: `POST /predict` y `GET /teams/arsenal/stats?match_date=2024-04-23T15:00:00Z` devolvieron `500`; llamada Python lanzó `TypeError: Invalid comparison between dtype=datetime64[ns] and Timestamp`.
-- **Archivo y ubicación:** [prediction_service.py:201-210](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/prediction_service.py#L201-L210) (`_parse_date`), [src/features.py:496](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/features.py#L496) (`df_history["MatchDate"] < target_ts`) y [src/api.py:128-151](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/api.py#L128-L151).
+- **Archivo y ubicación:** [prediction_service.py:201-210](../prediction_service.py#L201-L210) (`_parse_date`), [src/features.py:496](../src/features.py#L496) (`df_history["MatchDate"] < target_ts`) y [src/api.py:128-151](../src/api.py#L128-L151).
 - **Requisito afectado:** `REQ-BK-07`, `REQ-BK-08`.
 - **Impacto:** Un cliente web estándar que serialice fechas con `.toISOString()` tumbará el endpoint con error 500.
 - **Severidad:** **ALTA**
@@ -365,7 +365,7 @@ Comparación directa de `feat/hito3-backend` (`e6136f6`) frente a `main` (`fe7eb
 ### HAL-03 — Corrupción silenciosa del Elo de Nottingham Forest (`2025-01-01` a `2026-09-01`)
 - **Descripción:** Al normalizar `"Nottm Forest"` a `"Nott'm Forest"` antes de eliminar duplicados con `keep="last"`, la serie congelada de `"Nottm Forest"` (`1731.5`) en `EloRatings.csv` sobreescribe los 41 registros reales y actualizados de `"Nott'm Forest"` (`1758.31`–`1792.37`) entre 2025 y 2026.
 - **Evidencia:** Verificación directa sobre `EloRatings.csv`, `Matches.csv` y `GET /teams/Nott'm Forest/stats` (`elo = 1731.5` al `2026-09-07`, frente a `1785.14` en `2026-09-01` en `EloRatings.csv` bajo `"Nott'm Forest"`).
-- **Archivo y ubicación:** [src/data.py:29-38](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/data.py#L29-L38) (`load_elo_ratings`).
+- **Archivo y ubicación:** [src/data.py:29-38](../src/data.py#L29-L38) (`load_elo_ratings`).
 - **Requisito afectado:** `REQ-BK-01`, `REQ-BK-02`, `REQ-BK-07`.
 - **Impacto:** Todos los partidos de Nottingham Forest desde enero de 2025 (en `Test 2024/25`, `Prospectivo 2025/26`, `2026/27` e inferencia actual) reciben un Elo estático erróneo de `1731.5` (desvío hasta ~61 puntos Elo).
 - **Severidad:** **ALTA**
@@ -376,7 +376,7 @@ Comparación directa de `feat/hito3-backend` (`e6136f6`) frente a `main` (`fe7eb
 ### HAL-04 — Regresión de contrato Python/JSON en `prediction_service.py` y desincronización destructiva con el notebook
 - **Descripción:** `prediction_service.py` eliminó atributos/métodos de `main` (`get_latest_team_stats`, `get_h2h_stats`, `TEAM_ALIASES`, `epl`, `matches`, `matches_e0`, `prem`) y cambió claves de `contexto_prepartido` (`Forma5_Local/Visitante` → `RollingPts5_Local/Visitante`). Paralelamente, `Proyecto_Red_Neuronal_Profunda_EPL.ipynb` no fue actualizado y sigue configurado para 40 features apuntando a `models/best_deep_mlp.keras`.
 - **Evidencia:** `task-146` (`CONTRACT REGRESSION CHECK` y `NOTEBOOK STATIC COMPATIBILITY SCAN`).
-- **Archivo y ubicación:** [prediction_service.py:124-421](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/prediction_service.py#L124-L421), [Proyecto_Red_Neuronal_Profunda_EPL.ipynb](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/Proyecto_Red_Neuronal_Profunda_EPL.ipynb) Celdas 14, 18 y 20.
+- **Archivo y ubicación:** [prediction_service.py:124-421](../prediction_service.py#L124-L421), [Proyecto_Red_Neuronal_Profunda_EPL.ipynb](../notebooks/Proyecto_Red_Neuronal_Profunda_EPL.ipynb) Celdas 14, 18 y 20.
 - **Requisito afectado:** `REQ-BK-13`, `REQ-BK-05`.
 - **Impacto:** Rompe consumidores antiguos de `EPLPredictor` y crea riesgo de sobrescritura incompatible de `models/best_deep_mlp.keras` si alguien reejecuta el notebook. Además `Hito2Proyecto.pdf` (40 features, 128-64-32-16) queda desalineado frente al backend (45 features, `Residual_Deep_MLP_3L`).
 - **Severidad:** **ALTA**
@@ -387,7 +387,7 @@ Comparación directa de `feat/hito3-backend` (`e6136f6`) frente a `main` (`fe7eb
 ### HAL-05 — Latencia elevada en `/predict` (`347 ms`) y crítica en `/predict/batch` (`16.7 s` para 50 partidos)
 - **Descripción:** `POST /predict` promedia `347.0 ms` y `POST /predict/batch` con 50 partidos tarda `16,726.6 ms` (~16.73 segundos).
 - **Evidencia:** Benchmark cronometrado sobre `TestClient(app)` (`task-146`).
-- **Archivo y ubicación:** [src/features.py:512-565](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/features.py#L512-L565) (`_collect_team_state` itera todo el historial `itertuples()` de 25 años por cada partido) y [src/api.py:154-174](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/api.py#L154-L174) (bucle de 50 llamadas individuales a `model.predict`).
+- **Archivo y ubicación:** [src/features.py:512-565](../src/features.py#L512-L565) (`_collect_team_state` itera todo el historial `itertuples()` de 25 años por cada partido) y [src/api.py:154-174](../src/api.py#L154-L174) (bucle de 50 llamadas individuales a `model.predict`).
 - **Requisito afectado:** `REQ-BK-09`.
 - **Impacto:** Bloquea el event loop de FastAPI (`def` síncrono largo en batch) y ofrece experiencia lenta al predecir jornadas completas o simulaciones desde un frontend.
 - **Severidad:** **MEDIA**
@@ -397,8 +397,8 @@ Comparación directa de `feat/hito3-backend` (`e6136f6`) frente a `main` (`fe7eb
 
 ### HAL-06 — Fuga menor temporal en `season_bounds` dentro de `compute_single_match_features`
 - **Descripción:** La detección del nombre de temporada (`2019/20` vs `2020/21`) evalúa `min`/`max` de `MatchDate` por temporada sobre todo `df_history`, incluyendo fechas futuras respecto a `target_ts`.
-- **Evidencia:** Inspección directa de [src/features.py:505-510](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/features.py#L505-L510).
-- **Archivo y ubicación:** [src/features.py:503-510](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/features.py#L503-L510).
+- **Evidencia:** Inspección directa de [src/features.py:505-510](../src/features.py#L505-L510).
+- **Archivo y ubicación:** [src/features.py:503-510](../src/features.py#L503-L510).
 - **Requisito afectado:** `REQ-BK-02`.
 - **Impacto:** No altera cálculos fuera de fechas fronterizas de julio 2020 y no filtra resultados futuros, pero viola estrictamente el principio de no consultar `df_history >= target_ts`.
 - **Severidad:** **MEDIA** (bajo impacto práctico, rigor formal).
@@ -409,7 +409,7 @@ Comparación directa de `feat/hito3-backend` (`e6136f6`) frente a `main` (`fe7eb
 ### HAL-07 — Rechazo `HTTP 404` a clubes recién ascendidos o en su debut EPL
 - **Descripción:** `prediction_service.py` bloquea la predicción con `insufficient_history` (`HTTP 404`) si un equipo tiene `0` partidos previos en `df_history` antes de `match_date` (ej. `Brentford` en la Jornada 1 de `2021/22`, `2021-08-13`), mientras que el pipeline de entrenamiento (`FeatureStateEngine.compute_batch_features`) sí procesó ese partido usando los valores iniciales neutros y `EloRatings.csv`.
 - **Evidencia:** Probe `Brentford debut EPL 2021-08-13` devolvió `HTTP 404` (`task-146`).
-- **Archivo y ubicación:** [prediction_service.py:334-339](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/prediction_service.py#L334-L339) y [prediction_service.py:166-167](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/prediction_service.py#L166-L167).
+- **Archivo y ubicación:** [prediction_service.py:334-339](../prediction_service.py#L334-L339) y [prediction_service.py:166-167](../prediction_service.py#L166-L167).
 - **Requisito afectado:** `REQ-BK-02`, `REQ-BK-07`.
 - **Impacto:** Impide predecir la primera jornada de un equipo recién ascendido que figura en `known_teams` y ya posee rating en `EloRatings.csv`.
 - **Severidad:** **MEDIA**
@@ -419,8 +419,8 @@ Comparación directa de `feat/hito3-backend` (`e6136f6`) frente a `main` (`fe7eb
 
 ### HAL-08 — Brecha frente a Regresión Logística y Bet365 en Test y leve aumento de `ECE` en Test tras Temperature Scaling
 - **Descripción:** El modelo seleccionado (`Residual_Deep_MLP_3L`) mejora sustancialmente al del Hito 2 y supera a `HistGradientBoosting` en Test y a `Regresión Logística` + `HGB` en `2025/26` (`Log Loss`/`Brier`/`ECE`), pero en Test (`n=1,520`) aún queda detrás de Regresión Logística (`56.91%`, LL `0.9495`) y de Bet365 (`56.91%`, LL `0.9458`). Asimismo, `T = 1.172273` reduce `Log Loss` y `Brier` en Test, pero eleva levemente `top_label_ece` de `0.0282` a `0.0312`.
-- **Evidencia:** [models/training_summary.json](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/models/training_summary.json).
-- **Archivo y ubicación:** [src/models.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/models.py), [src/train.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/train.py), [models/training_summary.json](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/models/training_summary.json).
+- **Evidencia:** [models/training_summary.json](../models/training_summary.json).
+- **Archivo y ubicación:** [src/models.py](../src/models.py), [src/train.py](../src/train.py), [models/training_summary.json](../models/training_summary.json).
 - **Requisito afectado:** `REQ-BK-05`, `REQ-BK-06`.
 - **Impacto:** Aunque los resultados son científicamente honestos y reales, no cumplen literalmente el compromiso absoluto del Hito 2 de superar a todos los modelos de referencia en exactitud y fiabilidad probabilística.
 - **Severidad:** **MEDIA**
@@ -431,7 +431,7 @@ Comparación directa de `feat/hito3-backend` (`e6136f6`) frente a `main` (`fe7eb
 ### HAL-09 — Ausencia de `logging` estructurado y supresión global de advertencias
 - **Descripción:** Ninguno de los 10 archivos Python del backend utiliza el módulo estándar `logging`; `prediction_service.py:15` oculta todas las advertencias del proceso con `warnings.filterwarnings("ignore")` y `src/models.py:24-25` silencia cualquier excepción al activar determinismo.
 - **Evidencia:** Escaneo estático (`task-149`).
-- **Archivo y ubicación:** [prediction_service.py:15](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/prediction_service.py#L15), [src/models.py:22-25](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/models.py#L22-L25).
+- **Archivo y ubicación:** [prediction_service.py:15](../prediction_service.py#L15), [src/models.py:22-25](../src/models.py#L22-L25).
 - **Requisito afectado:** Calidad de software y observabilidad.
 - **Impacto:** Dificulta diagnosticar errores en producción (como los `500` de `HAL-02`) o fallos de determinismo/versiones.
 - **Severidad:** **MEDIA** *(recomendación de calidad)*
@@ -441,7 +441,7 @@ Comparación directa de `feat/hito3-backend` (`e6136f6`) frente a `main` (`fe7eb
 
 ### HAL-10 — Endurecimiento operativo de FastAPI (cota superior de cuotas, batch parcial, CORS, singleton lock y `/model/metrics`)
 - **Descripción:** Conjunto de debilidades menores de diseño API: (a) `OddsInput` acepta `1e308`; (b) `/predict/batch` falla todo el lote sin devolver el índice del partido erróneo; (c) `allow_origins=["*"]` está fijo sin configuración por entorno; (d) `get_predictor()` carece de `threading.Lock`; (e) `GET /model/metrics` transfiere `277,460 bytes` completos en cada consulta.
-- **Evidencia:** Probes `TestClient` (`task-146`) e inspección de [src/api.py:15-185](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/api.py#L15-L185) y [prediction_service.py:424-439](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/prediction_service.py#L424-L439).
+- **Evidencia:** Probes `TestClient` (`task-146`) e inspección de [src/api.py:15-185](../src/api.py#L15-L185) y [prediction_service.py:424-439](../prediction_service.py#L424-L439).
 - **Requisito afectado:** `REQ-BK-08`, calidad/seguridad API.
 - **Impacto:** Respuestas poco informativas en errores batch, exposición excesiva de payload y ausencia de control de orígenes en despliegue real.
 - **Severidad:** **BAJA–MEDIA**
@@ -485,10 +485,10 @@ Comparación directa de `feat/hito3-backend` (`e6136f6`) frente a `main` (`fe7eb
 
 1. **Inspección de estructura e historial Git:** `git branch -a`, `git status -sb`, `git diff --stat main..HEAD`, `git log --all --oneline -n 15`.
 2. **Lectura directa del código fuente y documentos:**
-   - [Hito2Proyecto.pdf](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/Hito2Proyecto.pdf), [README.md](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/README.md), [requirements.txt](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/requirements.txt).
-   - [src/config.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/config.py), [src/data.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/data.py), [src/features.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/features.py), [src/models.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/models.py), [src/calibration.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/calibration.py), [src/evaluate.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/evaluate.py), [src/train.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/train.py), [src/api.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/src/api.py), [prediction_service.py](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/prediction_service.py).
-   - [Proyecto_Red_Neuronal_Profunda_EPL.ipynb](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/Proyecto_Red_Neuronal_Profunda_EPL.ipynb) (escaneo de compatibilidad).
-3. **Inspección binaria y JSON de artefactos en `models/`:** tamaños exactos, estructura de capas Keras de `best_deep_mlp.keras`, `scaler.n_samples_seen_ == 6460.0`, `calibration.json` y [training_summary.json](file:///c:/Users/José%20Alejandro/Documents/ProyectoPredictor-PremierLeague/models/training_summary.json) (verificación de reproducción exacta `diff = 0.0`).
+   - [Hito2Proyecto.pdf](Hito2Proyecto.pdf), [README.md](../README.md), [requirements.txt](../requirements.txt).
+   - [src/config.py](../src/config.py), [src/data.py](../src/data.py), [src/features.py](../src/features.py), [src/models.py](../src/models.py), [src/calibration.py](../src/calibration.py), [src/evaluate.py](../src/evaluate.py), [src/train.py](../src/train.py), [src/api.py](../src/api.py), [prediction_service.py](../prediction_service.py).
+   - [Proyecto_Red_Neuronal_Profunda_EPL.ipynb](../notebooks/Proyecto_Red_Neuronal_Profunda_EPL.ipynb) (escaneo de compatibilidad).
+3. **Inspección binaria y JSON de artefactos en `models/`:** tamaños exactos, estructura de capas Keras de `best_deep_mlp.keras`, `scaler.n_samples_seen_ == 6460.0`, `calibration.json` y [training_summary.json](../models/training_summary.json) (verificación de reproducción exacta `diff = 0.0`).
 4. **Ejecución independiente de la suite existente:** `python -m unittest discover -s tests -v` (`Ran 26 tests in 20.549s — OK`).
 5. **Ejecución de batería adversarial independiente:**
    - Probes sobre `TestClient(app)` (`18` escenarios de bordes HTTP/Pydantic/fechas/cuotas/CORS) y servicio Python directo.
