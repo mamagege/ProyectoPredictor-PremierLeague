@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react'
+import ErrorNotice from '../components/ErrorNotice'
 import type { MetricsResponse, ModelResult } from '../api'
 import { num0, num2, pct1 } from '../lib/format'
 
@@ -146,7 +147,15 @@ function Method({ m }: { m: MetricsResponse }) {
   )
 }
 
-export default function ModelView({ metrics, error }: { metrics: MetricsResponse | null; error: string | null }) {
+export default function ModelView({
+  metrics,
+  error,
+  onRetry,
+}: {
+  metrics: MetricsResponse | null
+  error: string | null
+  onRetry: () => void
+}) {
   const mlp = metrics?.test_results.find((r) => r.model.startsWith('Deep MLP'))
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
@@ -160,12 +169,18 @@ export default function ModelView({ metrics, error }: { metrics: MetricsResponse
           </p>
         )}
       </header>
-      {error && (
-        <p role="alert" className="rounded-md border border-danger/50 bg-danger/10 px-3 py-2 text-danger">
-          No se pudieron cargar las métricas: {error}
-        </p>
+      {error && <ErrorNotice title="No se pudieron cargar las métricas" message={error} onRetry={onRetry} />}
+      {!metrics && !error && (
+        <div aria-busy="true" aria-label="Cargando métricas" className="grid gap-5">
+          {[56, 64, 40].map((h) => (
+            <div
+              key={h}
+              style={{ height: `${h * 4}px` }}
+              className="animate-pulse rounded-lg border border-line bg-surface motion-reduce:animate-none"
+            />
+          ))}
+        </div>
       )}
-      {!metrics && !error && <p className="text-ink-muted">Cargando métricas…</p>}
       {metrics && (
         <>
           <Benchmark m={metrics} />

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { api, type MetricsResponse, type TeamsResponse } from './api'
 import PredictorView from './views/PredictorView'
 import ModelView from './views/ModelView'
@@ -33,10 +33,30 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
+  const fetchTeams = useCallback(
+    () => api.teams().then(setTeams).catch((e: Error) => setTeamsError(e.message)),
+    [],
+  )
+  const fetchMetrics = useCallback(
+    () => api.metrics().then(setMetrics).catch((e: Error) => setMetricsError(e.message)),
+    [],
+  )
+
+  // Carga inicial: sincroniza con la API externa.
   useEffect(() => {
-    api.teams().then(setTeams).catch((e: Error) => setTeamsError(e.message))
-    api.metrics().then(setMetrics).catch((e: Error) => setMetricsError(e.message))
-  }, [])
+    fetchTeams()
+    fetchMetrics()
+  }, [fetchTeams, fetchMetrics])
+
+  // Reintentos iniciados por la persona: limpian el error y vuelven a pedir.
+  const retryTeams = () => {
+    setTeamsError(null)
+    fetchTeams()
+  }
+  const retryMetrics = () => {
+    setMetricsError(null)
+    fetchMetrics()
+  }
 
   const go = (t: Tab) => {
     window.location.hash = t === 'modelo' ? '#modelo' : '#predictor'
@@ -77,9 +97,15 @@ export default function App() {
 
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         {tab === 'predictor' ? (
-          <PredictorView teams={teams} teamsError={teamsError} metrics={metrics} onOpenModel={() => go('modelo')} />
+          <PredictorView
+            teams={teams}
+            teamsError={teamsError}
+            metrics={metrics}
+            onOpenModel={() => go('modelo')}
+            onRetryTeams={retryTeams}
+          />
         ) : (
-          <ModelView metrics={metrics} error={metricsError} />
+          <ModelView metrics={metrics} error={metricsError} onRetry={retryMetrics} />
         )}
       </main>
 
