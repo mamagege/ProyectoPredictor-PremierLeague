@@ -25,11 +25,12 @@ El modelo (Deep MLP) y `prediction_service.py` ya existían como backend de ML s
 
 ## Pendientes antes de desplegar
 
-- [ ] Configurar los orígenes CORS por variable de entorno (hoy solo `localhost`).
+- [ ] Configurar los orígenes CORS de `api/main.py` por variable de entorno (hoy solo `localhost`; `src/api.py` ya usa `CORS_ALLOW_ORIGINS`).
 - [ ] Limitar la tasa de peticiones de la API y definir cómo se aloja TensorFlow (memoria y tiempo de arranque).
-- [ ] Pruebas de la API (con `httpx`) y una prueba de extremo a extremo del flujo principal.
-- [ ] Confirmar con el equipo de backend la versión de scikit-learn con la que se entrenó `scaler.pkl` (hoy se carga con 1.9.1).
-- [ ] Corregir el README: dice 38 características y `feature_names.json` tiene 40.
+- [x] Pruebas de la API: `tests/test_frontend_api.py` cubre `api/main.py` con `TestClient` (httpx).
+- [ ] Una prueba de extremo a extremo del flujo principal.
+- [x] Versión de scikit-learn: el modelo se entrenó con 1.9.0 (`models/training_summary.json`) y `requirements.txt` la fija en 1.9.0.
+- [x] README: corregido; el modelo del Hito 3 usa 45 características, igual que `feature_names.json`.
 - [ ] Revisar licencias de los tres datasets de Kaggle antes de publicar.
 - [ ] Probar en un dispositivo real y con lector de pantalla.
 
