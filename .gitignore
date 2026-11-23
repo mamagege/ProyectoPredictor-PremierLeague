@@ -223,3 +223,6 @@ __marimo__/
 node_modules/
 frontend/dist/
 !frontend/src/lib/
+
+# Modelo del Hito 2 regenerado por el notebook (no es el de producción)
+models/hito2/

@@ -41,15 +41,16 @@ function Row({
 }) {
   const vsNormal = value !== null && base !== null ? value - base : null
   const vsPrev = value !== null && prev !== null ? value - prev : null
-  const whole = value === null ? '—' : num1(value)
+  const whole = value === null ? '–' : num1(value)
   return (
     <li className="py-5 first:pt-0 last:pb-0">
       <div className="flex items-baseline justify-between gap-4">
         <h3 className={`min-w-0 break-words text-base sm:text-lg ${winner ? 'font-bold' : 'text-muted font-bold'}`}>
+          <span aria-hidden className="mr-2 inline-block size-2.5 rounded-full align-middle" style={{ background: TONE[outcome] }} />
           {label}
           {winner && <span className="ml-2 text-sm font-normal text-muted">más probable</span>}
         </h3>
-        <p className="shrink-0 font-display text-5xl font-bold leading-none sm:text-6xl" style={{ color: TONE[outcome] }}>
+        <p className="shrink-0 font-display text-5xl font-bold leading-none sm:text-6xl" style={{ color: value === null ? 'var(--color-line)' : TONE[outcome] }}>
           {whole}
           <span className="ml-1 text-2xl text-muted sm:text-3xl">%</span>
         </p>
@@ -61,7 +62,7 @@ function Row({
         aria-label={
           value === null
             ? `${label}: sin calcular`
-            : `${label}: ${pct1(value)}${base !== null ? `, la normal histórica es ${pct1(base)}` : ''}`
+            : `${label}: ${pct1(value)}${base !== null ? `, en los partidos de 2021 a 2025 ocurrió el ${pct1(base)} de las veces` : ''}`
         }
         className="relative mt-3 h-3 rounded-sm bg-raised"
       >
@@ -81,11 +82,11 @@ function Row({
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
-        <span>{base !== null ? `Normal histórica: ${pct1(base)}` : 'Normal histórica: …'}</span>
+        <span>{base !== null ? `Frecuencia 2021–25: ${pct1(base)}` : 'Frecuencia 2021–25: …'}</span>
         {vsNormal !== null && (
-          <span className="inline-flex items-center gap-1 font-bold text-text">
+          <span className="inline-flex items-center gap-1 text-text">
             {vsNormal >= 0 ? <ArrowUp aria-hidden className="size-3.5" /> : <ArrowDown aria-hidden className="size-3.5" />}
-            {signed1(vsNormal)} pts respecto a lo normal
+            {signed1(vsNormal)} pts
           </span>
         )}
         {vsPrev !== null && Math.abs(vsPrev) >= 0.05 && (
@@ -136,6 +137,11 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
       aria-busy={busy}
       className={`rounded-lg border border-line bg-panel p-5 transition-opacity sm:p-6 ${busy ? 'opacity-60' : ''}`}
     >
+      {result && !busy && (
+        <p role="status" aria-live="polite" className="sr-only">
+          {`Pronóstico ${result.home_team} contra ${result.away_team}: victoria de ${result.home_team} ${pct1(result.probabilities.home)}, empate ${pct1(result.probabilities.draw)}, victoria de ${result.away_team} ${pct1(result.probabilities.away)}.`}
+        </p>
+      )}
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h2 id="forecast-title" className="font-display text-2xl font-bold leading-tight">
           {result ? `${result.home_team} – ${result.away_team}` : 'Pronóstico del partido'}
@@ -164,14 +170,16 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
         <>
           {!result && (
             <p className="mt-1 text-muted">
-              Elige dos equipos y calcula. Las marcas blancas ya muestran lo que ocurre normalmente en la Premier League.
+              Elige dos equipos y calcula. La marca blanca de cada barra indica con qué frecuencia ocurrió ese resultado en
+              los partidos de 2021 a 2025.
             </p>
           )}
           {result && (
             <p className="mt-1 text-muted">
               {result.odds_used
                 ? 'Calculado con las cuotas que ingresaste.'
-                : 'Sin cuotas: el mercado se estimó a partir del Elo.'}
+                : 'Sin cuotas: el mercado se estimó a partir del Elo.'}{' '}
+              La marca blanca indica con qué frecuencia ocurrió ese resultado en los partidos de 2021 a 2025.
             </p>
           )}
 
@@ -184,6 +192,22 @@ export default function Forecast({ result, previous, busy, error, baseRates, acc
                 ))}
                 <p className="mt-1 text-text">Tómalo como una estimación poco fiable.</p>
               </div>
+            </div>
+          )}
+
+          {result && (
+            <div
+              aria-hidden
+              key={`stack-${result.home_team}-${result.away_team}-${result.probabilities.home}`}
+              className="mt-6 flex h-4 gap-0.5 overflow-hidden rounded-sm"
+            >
+              {ORDER.map((o, i) => (
+                <div
+                  key={o}
+                  className="bar-fill"
+                  style={{ width: `${result.probabilities[o]}%`, background: TONE[o], ['--i' as string]: i }}
+                />
+              ))}
             </div>
           )}
 

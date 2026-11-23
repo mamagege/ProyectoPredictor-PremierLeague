@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { api, type MetricsResponse, type TeamsResponse } from './api'
 import PredictorView from './views/PredictorView'
 import ModelView from './views/ModelView'
+import Intro from './components/Intro'
 
 type Tab = 'predictor' | 'modelo'
 
@@ -60,6 +61,7 @@ export default function App() {
 
   return (
     <div className="min-h-dvh">
+      <Intro />
       <header className="border-b border-line bg-panel">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
           <a href="#predictor" onClick={(e) => { e.preventDefault(); go('predictor') }} className="flex items-center gap-2.5 py-3">

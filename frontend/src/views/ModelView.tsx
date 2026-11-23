@@ -78,7 +78,9 @@ function Benchmark({ m }: { m: MetricsResponse }) {
             {beaten.map((r) => r.model).join(' y ')}: con los datos disponibles, las cuotas del mercado ya recogen casi
             toda la información previa al partido.
           </>
-        )}
+        )}{' '}
+        Esta aplicación usa la red neuronal profunda porque es el componente central del proyecto del curso
+        {mine && mine.f1_D === best(rows, (r) => r.f1_D, 'max') ? ' y es la que más empates identifica (F1 del empate)' : ''}.
       </p>
     </section>
   )
@@ -113,12 +115,11 @@ function Confusion({ m }: { m: MetricsResponse }) {
                 <th scope="row" className="pr-2 text-right text-sm font-bold text-muted">Real: {CLASSES[i].toLowerCase()}</th>
                 {row.map((v, j) => {
                   const ok = i === j
-                  const tone = ok ? 'var(--color-local)' : 'var(--color-away)'
                   return (
                     <td
                       key={j}
-                      className="rounded-md border border-line px-2 py-3"
-                      style={{ background: `color-mix(in srgb, ${tone} ${Math.round(norm[i][j] * 60)}%, var(--color-raised))` }}
+                      className={`rounded-md px-2 py-3 ${ok ? 'border-2 border-text' : 'border border-line'}`}
+                      style={{ background: `color-mix(in srgb, var(--color-text) ${Math.round(norm[i][j] * 40)}%, var(--color-raised))` }}
                     >
                       <span className="block font-display text-2xl font-bold leading-none">{num0(v)}</span>
                       <span className="mt-1 block text-sm">{pct1(norm[i][j] * 100)}</span>
@@ -131,7 +132,7 @@ function Confusion({ m }: { m: MetricsResponse }) {
         </table>
       </div>
       <p className="mt-4 text-sm text-muted">
-        <span className="font-bold text-local">Verde</span>: acierto. <span className="font-bold text-away">Rosa</span>: error.
+        Las celdas con borde blanco, en la diagonal, son aciertos; cuanto más claro el fondo, mayor la proporción de esa fila.
         Los empates son difíciles de anticipar:{' '}
         {drawsMarked === 0
           ? 'el modelo nunca marcó el empate como lo más probable (columna del medio en cero)'

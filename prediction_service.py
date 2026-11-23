@@ -676,7 +676,7 @@ if __name__ == "__main__":
         ("Man City vs Liverpool (2023-11-25)", ("Man City", "Liverpool", "2023-11-25", [1.75, 4.20, 4.33])),
         ("Jornada 1 2024/25: Arsenal vs Wolves (2024-08-17)", ("arsenal", "wolves", "2024-08-17", None)),
         ("Debutante EPL: Brentford vs Arsenal (2021-08-13)", ("Brentford", "Arsenal", "2021-08-13", None)),
-        ("Alias: Manchester City vs Nottingham Forest", ("Manchester City", "Nottingham Forest", "2024-04-28", None)),
+        ("Alias: Nottingham Forest vs Manchester City (2024-04-28)", ("Nottingham Forest", "Manchester City", "2024-04-28", None)),
         ("Equipo desconocido: Real Madrid vs Barcelona", ("Real Madrid", "Barcelona", None, None)),
     ]
     for label, args in cases:

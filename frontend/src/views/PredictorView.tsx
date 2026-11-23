@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   api,
   deployedResult,
@@ -33,6 +33,15 @@ export default function PredictorView({ teams, teamsError, metrics, onOpenModel 
   const [previous, setPrevious] = useState<PredictResponse | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const resultRef = useRef<HTMLDivElement>(null)
+
+  // En pantallas de una columna el resultado queda debajo del formulario: se desplaza hasta él.
+  useEffect(() => {
+    if (!result) return
+    if (!window.matchMedia('(max-width: 1023px)').matches) return
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    resultRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+  }, [result])
 
   async function submit(req: PredictRequest) {
     setBusy(true)
@@ -63,7 +72,7 @@ export default function PredictorView({ teams, teamsError, metrics, onOpenModel 
           </p>
         )}
       </div>
-      <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
+      <div ref={resultRef} className="grid scroll-mt-4 grid-cols-[minmax(0,1fr)] gap-5">
         <Forecast
           result={result}
           previous={previous}
