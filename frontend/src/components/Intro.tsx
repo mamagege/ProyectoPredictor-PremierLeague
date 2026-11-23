@@ -2,8 +2,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { bezier } from '../lib/bezier'
 
 /**
- * Entrada de primera carga: un trazo SVG de 3222×3114 se desenreda sobre un fondo
- * sólido y revela la app. Se reproduce solo la primera vez que se visita la app.
+ * Animación de entrada: un trazo SVG de 3222×3114 se desenreda sobre un fondo
+ * sólido y revela la app en cada carga o recarga de página.
  *
  * Línea de tiempo: 250 ms de pausa con la cubierta opaca + 2000 ms de desenredo.
  * - strokeDashoffset: 0 → -longitud, cubic-bezier(.645,.045,.355,1)
@@ -23,26 +23,9 @@ const HOLD_MS = 250
 const UNWIND_MS = 2000
 const MARK_HIDE_MS = 950
 const FADE_END = 0.18
-const SEEN_KEY = 'epl-intro-seen'
 
 const easeDash = bezier(0.645, 0.045, 0.355, 1)
 const easeWidth = bezier(0.75, 0.15, 0.15, 1)
-
-// Solo la primera visita real: en una herramienta de uso, repetir la intro retrasa la tarea.
-function alreadySeen(): boolean {
-  try {
-    return localStorage.getItem(SEEN_KEY) === '1'
-  } catch {
-    return false
-  }
-}
-function markSeen() {
-  try {
-    localStorage.setItem(SEEN_KEY, '1')
-  } catch {
-    /* sin almacenamiento: la intro simplemente puede repetirse */
-  }
-}
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -56,7 +39,7 @@ interface Props {
 }
 
 export default function Intro({ ground = '#28466f', ink = '#e6eef9', title = 'Predictor EPL' }: Props) {
-  const [active, setActive] = useState(() => !alreadySeen() && !reducedMotion())
+  const [active, setActive] = useState(() => !reducedMotion())
   const groundRef = useRef<SVGRectElement>(null)
   const pathRef = useRef<SVGPathElement>(null)
   const markRef = useRef<HTMLDivElement>(null)
@@ -82,7 +65,6 @@ export default function Intro({ ground = '#28466f', ink = '#e6eef9', title = 'Pr
 
     const finish = () => {
       cancelAnimationFrame(raf)
-      markSeen()
       setActive(false)
     }
 

@@ -9,7 +9,7 @@ const ITEMS: [string, string][] = [
   ],
   [
     'Qué se guarda en tu navegador',
-    'Una sola marca, «epl-intro-seen», en el almacenamiento local, para no repetir la animación de entrada. Se elimina al borrar los datos del sitio desde tu navegador.',
+    'Nada: la aplicación no utiliza cookies ni almacenamiento local en tu navegador.',
   ],
   [
     'De dónde salen los datos de los partidos',
